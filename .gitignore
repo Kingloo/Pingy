@@ -172,3 +172,8 @@ UpgradeLog*.htm
 
 # Microsoft Fakes
 FakesAssemblies/
+
+
+## My own customizations of GitHub default VisualStudio
+Service References/
+BuildProcessTemplates/
