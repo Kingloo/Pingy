@@ -25,7 +25,7 @@
                   Margin="0,15,0,0">
                 
                 <Grid.ToolTip>
-                    <TextBlock Text="{Binding Path=Status}"
+                    <TextBlock Text="{Binding Path=Tooltip}"
                                Style="{StaticResource ToolTipTextBlock}" />
                 </Grid.ToolTip>
                 

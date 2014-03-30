@@ -40,6 +40,17 @@ namespace Pingy
                 OnPropertyChanged("RoundtripTime");
             }
         }
+
+        private string _tooltip = string.Empty;
+        public string Tooltip
+        {
+            get { return this._tooltip; }
+            set
+            {
+                this._tooltip = value;
+                OnPropertyChanged("Tooltip");
+            }
+        }
         #endregion
 
         public Ping(string address)
@@ -50,6 +61,8 @@ namespace Pingy
         public async Task PingAsync()
         {
             Status = PingStatus.Updating;
+            Tooltip = string.Format("Updating {0} ...", this.Address);
+
             System.Net.NetworkInformation.PingReply reply = await new System.Net.NetworkInformation.Ping().SendPingAsync(this.Address, 1000);
 
             if (reply.Status == System.Net.NetworkInformation.IPStatus.Success)
@@ -61,6 +74,8 @@ namespace Pingy
             {
                 Status = PingStatus.Failure;
             }
+
+            Tooltip = string.Format("{0} in {1} ms", reply.Status.ToString(), reply.RoundtripTime.ToString());
         }
     }
 }
