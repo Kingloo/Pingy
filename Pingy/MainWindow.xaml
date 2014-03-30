@@ -1,0 +1,70 @@
+﻿<Window x:Class="Pingy.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:this="clr-namespace:Pingy;assembly="
+        ContentRendered="Window_ContentRendered"
+        Loaded="Window_Loaded">
+
+    <Window.DataContext>
+        <this:PingManager x:Name="pingManager" />
+    </Window.DataContext>
+
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding Path=PingAllAsyncCommand, ElementName=pingManager}"
+                    Key="{StaticResource PingAllAsyncCommandKey}" />
+    </Window.InputBindings>
+    
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type this:Ping}">
+            
+            <DataTemplate.Resources>
+                <this:PingStatusToColourConverter x:Key="pingStatusToColourConverter" />
+            </DataTemplate.Resources>
+            
+            <Grid Background="{Binding Path=Status, Converter={StaticResource pingStatusToColourConverter}}"
+                  Margin="0,15,0,0">
+                
+                <Grid.ToolTip>
+                    <TextBlock Text="{Binding Path=Status}"
+                               Style="{StaticResource ToolTipTextBlock}" />
+                </Grid.ToolTip>
+                
+                <Grid.InputBindings>
+                    <MouseBinding MouseAction="LeftDoubleClick"
+                                  Command="{Binding Path=PingAsyncCommand, ElementName=pingManager}"
+                                  CommandParameter="{Binding}" />
+                </Grid.InputBindings>
+                
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Text="{Binding Path=Address}"
+                           Grid.Column="0"/>
+                
+                <TextBlock Text="{Binding Path=RoundtripTime}"
+                           Grid.Column="1" />
+                
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
+    
+    <Grid>
+        <ItemsControl ItemsSource="{Binding Path=Pings, ElementName=pingManager}">
+            
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Style="{StaticResource ItemsControlItemsPanelStackPanel}" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            
+            <ItemsControl.Template>
+                <ControlTemplate>
+                    <ItemsPresenter />
+                </ControlTemplate>
+            </ItemsControl.Template>
+            
+        </ItemsControl>
+    </Grid>
+</Window>
