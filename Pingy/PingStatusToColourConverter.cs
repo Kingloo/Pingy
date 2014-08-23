@@ -8,13 +8,48 @@ namespace Pingy
     [ValueConversion(typeof(Ping.PingStatus), typeof(Brush))]
     class PingStatusToColourConverter : IValueConverter
     {
+        private Brush _none = Brushes.White;
+        public Brush None
+        {
+            get { return this._none; }
+            set { this._none = value; }
+        }
+
+        private Brush _updating = Brushes.White;
+        public Brush Updating
+        {
+            get { return this._updating; }
+            set { this._updating = value; }
+        }
+
+        private Brush _success = Brushes.White;
+        public Brush Success
+        {
+            get { return this._success; }
+            set { this._success = value; }
+        }
+
+        private Brush _failure = Brushes.White;
+        public Brush Failure
+        {
+            get { return this._failure; }
+            set { this._failure = value; }
+        }
+
+        private Brush _dnsResolutionError = Brushes.White;
+        public Brush DnsResolutionError
+        {
+            get { return this._dnsResolutionError; }
+            set { this._dnsResolutionError = value; }
+        }
+
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            Brush toReturn = Brushes.White;
+            Brush toReturn = this.None;
 
             if (value == null)
             {
-                toReturn = Brushes.LightBlue;
+                return this.None;
             }
             else
             {
@@ -23,22 +58,22 @@ namespace Pingy
                 switch (pingStatus)
                 {
                     case Ping.PingStatus.None:
-                        toReturn = (Brush)Application.Current.Resources["PingStatusNone"];
+                        toReturn = this.None;
                         break;
                     case Ping.PingStatus.Updating:
-                        toReturn = (Brush)Application.Current.Resources["PingStatusUpdating"];
+                        toReturn = this.Updating;
                         break;
                     case Ping.PingStatus.Success:
-                        toReturn = (Brush)Application.Current.Resources["PingStatusSuccess"];
+                        toReturn = this.Success;
                         break;
                     case Ping.PingStatus.Failure:
-                        toReturn = (Brush)Application.Current.Resources["PingStatusFailure"];
+                        toReturn = this.Failure;
                         break;
                     case Ping.PingStatus.DnsResolutionError:
-                        toReturn = (Brush)Application.Current.Resources["PingStatusDnsResolutionError"];
+                        toReturn = this.DnsResolutionError;
                         break;
                     default:
-                        toReturn = Brushes.White;
+                        toReturn = this.None;
                         break;
                 }
             }

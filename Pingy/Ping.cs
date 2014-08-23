@@ -4,23 +4,45 @@ using System.Threading.Tasks;
 
 namespace Pingy
 {
-    class Ping : ViewModelBase
+    public class Ping : ViewModelBase
     {
         public enum PingStatus { None, Updating, Success, Failure, DnsResolutionError };
 
         #region Fields
-        private bool _isIpAddress = false;
+        private bool isIpAddress = false;
+        private IPAddress ipAddress = null;
+        private string hostName = string.Empty;
+        private const int timeout = 500;
         #endregion
 
         #region Properties
-        private string _address = string.Empty;
         public string Address
         {
-            get { return this._address; }
-            set
+            get
             {
-                this._address = value;
-                OnPropertyChanged("Address");
+                if (isIpAddress)
+                {
+                    return ipAddress.ToString();
+                }
+                else
+                {
+                    return hostName;
+                }
+            }
+        }
+
+        public string Tooltip
+        {
+            get
+            {
+                if (this.Status == PingStatus.Success)
+                {
+                    return string.Format("{0} in {1} ms", this.Status.ToString(), this.RoundtripTime.ToString());
+                }
+                else
+                {
+                    return this.Status.ToString();
+                }
             }
         }
 
@@ -31,7 +53,8 @@ namespace Pingy
             set
             {
                 this._status = value;
-                OnPropertyChanged("Status");
+                OnPropertyChanged();
+                OnPropertyChanged("Tooltip");
             }
         }
 
@@ -42,84 +65,100 @@ namespace Pingy
             set
             {
                 this._roundtripTime = value;
-                OnPropertyChanged("RoundtripTime");
-            }
-        }
-
-        private string _tooltip = string.Empty;
-        public string Tooltip
-        {
-            get { return this._tooltip; }
-            set
-            {
-                this._tooltip = value;
-                OnPropertyChanged("Tooltip");
+                OnPropertyChanged();
             }
         }
         #endregion
 
         public Ping(string address)
         {
-            this.Address = address;
-
-            IPAddress ipAddress = null;
-            if (IPAddress.TryParse(address, out ipAddress))
+            if (IPAddress.TryParse(address, out this.ipAddress))
             {
-                this._isIpAddress = true;
+                this.isIpAddress = true;
+            }
+            else
+            {
+                this.hostName = address;
             }
         }
 
         public async Task PingAsync()
         {
             Status = PingStatus.Updating;
-            Tooltip = string.Format("Updating {0} ...", this.Address);
-
             System.Net.NetworkInformation.PingReply reply = null;
 
-            if (this._isIpAddress)
+            if (this.isIpAddress)
             {
-                reply = await new System.Net.NetworkInformation.Ping().SendPingAsync(this.Address, 1000);
+                reply = await PingIpAddress(ipAddress);
             }
             else
             {
-                try
-                {
-                    IPAddress[] ipAddresses = await Dns.GetHostAddressesAsync(this.Address);
+                bool canResolveHostName = await TryResolveHostName(hostName);
 
-                    if (ipAddresses.Length > 0)
-                    {
-                        reply = await new System.Net.NetworkInformation.Ping().SendPingAsync(this.Address, 1000);
-                    }
-                }
-                catch (SocketException)
+                if (canResolveHostName)
                 {
-                    Status = PingStatus.DnsResolutionError;
-                    Tooltip = string.Format("Failed to resolve {0}", this.Address);
-
-                    return;
+                    reply = await PingHostName(hostName);
                 }
             }
 
+            ParsePingReply(reply);
+        }
 
+        private async Task<System.Net.NetworkInformation.PingReply> PingIpAddress(IPAddress ipAddress)
+        {
+            System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
+
+            return await ping.SendPingAsync(ipAddress, timeout);
+        }
+
+        private async Task<bool> TryResolveHostName(string hostName)
+        {
+            IPAddress[] ipAddresses = null;
+
+            try
+            {
+                ipAddresses = await Dns.GetHostAddressesAsync(hostName);
+            }
+            catch (SocketException)
+            {
+                return false;
+            }
+
+            if (ipAddresses.Length > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private async Task<System.Net.NetworkInformation.PingReply> PingHostName(string hostName)
+        {
+            System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
+
+            return await ping.SendPingAsync(hostName, timeout);
+        }
+
+        private void ParsePingReply(System.Net.NetworkInformation.PingReply reply)
+        {
             if (reply == null)
             {
-                Status = PingStatus.Failure;
-
-                Tooltip = "Failure";
+                this.Status = PingStatus.DnsResolutionError;
             }
             else
             {
+                this.RoundtripTime = reply.RoundtripTime;
+
                 if (reply.Status == System.Net.NetworkInformation.IPStatus.Success)
                 {
-                    Status = PingStatus.Success;
-                    RoundtripTime = reply.RoundtripTime;
+                    this.Status = PingStatus.Success;
                 }
                 else
                 {
-                    Status = PingStatus.Failure;
+                    this.Status = PingStatus.Failure;
                 }
-
-                Tooltip = string.Format("{0} in {1} ms", reply.Status.ToString(), reply.RoundtripTime.ToString());
             }
         }
     }

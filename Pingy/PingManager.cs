@@ -10,8 +10,6 @@ namespace Pingy
     {
         #region Commands
         private DelegateCommandAsync _pingAllAsyncCommand = null;
-        private DelegateCommandAsync _pingAsyncCommand = null;
-
         public DelegateCommandAsync PingAllAsyncCommand
         {
             get
@@ -24,6 +22,8 @@ namespace Pingy
                 return this._pingAllAsyncCommand;
             }
         }
+
+        private DelegateCommandAsync _pingAsyncCommand = null;
         public DelegateCommandAsync PingAsyncCommand
         {
             get
@@ -38,22 +38,27 @@ namespace Pingy
         }
         #endregion
 
-        #region Properties
+        #region Fields
+        private readonly MainWindow mainWindow = null;
+        private bool active = false;
         private readonly string addressesFilePath = string.Format(@"C:\Users\{0}\Documents\PingyAddresses.txt", Environment.UserName);
-        DispatcherTimer _updateTimer = new DispatcherTimer(DispatcherPriority.SystemIdle);
+        private DispatcherTimer _updateTimer = new DispatcherTimer(DispatcherPriority.SystemIdle);
         private int _updateTimerHours = 0;
         private int _updateTimerMinutes = 5;
         private int _updateTimerSeconds = 0;
-        private ObservableCollection<Ping> _pings = new ObservableCollection<Ping>();
-        public ObservableCollection<Ping> Pings
-        {
-            get { return this._pings; }
-            set { this._pings = value; }
-        }
         #endregion
 
-        public PingManager()
+        #region Properties
+        private ObservableCollection<Ping> _pings = new ObservableCollection<Ping>();
+        public ObservableCollection<Ping> Pings { get { return this._pings; } }
+        #endregion
+
+        public PingManager(MainWindow mainWindow)
         {
+            this.mainWindow = mainWindow;
+            this.mainWindow.Loaded += mainWindow_Loaded;
+            this.mainWindow.ContentRendered += mainWindow_ContentRendered;
+
             _updateTimer.Interval = new TimeSpan(_updateTimerHours, _updateTimerMinutes, _updateTimerSeconds);
             _updateTimer.Tick += async (sender, e) =>
                 {
@@ -61,6 +66,23 @@ namespace Pingy
                 };
 
             _updateTimer.IsEnabled = true;
+        }
+
+        
+
+        private async void mainWindow_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        {
+            bool didLoadAddresses = await LoadAddressesFromFileAsync();
+
+            if (didLoadAddresses)
+            {
+                await PingAllAsync(null);
+            }
+        }
+
+        private void mainWindow_ContentRendered(object sender, EventArgs e)
+        {
+            Misc.SetWindowToMiddleOfScreen(this.mainWindow);
         }
 
         public async Task<bool> LoadAddressesFromFileAsync()
@@ -92,21 +114,38 @@ namespace Pingy
         {
             if (this.Pings.Count > 0)
             {
+                active = true;
+
                 foreach (Ping each in Pings)
                 {
                     await each.PingAsync();
                 }
+
+                active = false;
             }
         }
 
         public async Task PingAsync(object parameter)
         {
-            await ((Ping)parameter).PingAsync();
+            active = true;
+            
+            Ping ping = (Ping)parameter;
+
+            await ping.PingAsync();
+
+            active = false;
         }
 
         private bool canExecutePinging(object parameter)
         {
-            return true; // ICommand requires a canExecute, yet no reason ever to deny
+            if (active)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
     }
 }
