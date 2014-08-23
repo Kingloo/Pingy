@@ -13,6 +13,7 @@
             <SolidColorBrush x:Key="PingStatusUpdating" Color="Yellow" />
             <SolidColorBrush x:Key="PingStatusSuccess" Color="LightGreen" />
             <SolidColorBrush x:Key="PingStatusFailure" Color="Maroon" />
+            <SolidColorBrush x:Key="PingStatusDnsResolutionError" Color="Orange" />
             
             <Style TargetType="{x:Type this:MainWindow}">
                 <Setter Property="Title" Value="Pingy" />

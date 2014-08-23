@@ -34,6 +34,9 @@ namespace Pingy
                     case Ping.PingStatus.Failure:
                         toReturn = (Brush)Application.Current.Resources["PingStatusFailure"];
                         break;
+                    case Ping.PingStatus.DnsResolutionError:
+                        toReturn = (Brush)Application.Current.Resources["PingStatusDnsResolutionError"];
+                        break;
                     default:
                         toReturn = Brushes.White;
                         break;

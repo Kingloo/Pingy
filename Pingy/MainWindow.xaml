@@ -1,7 +1,7 @@
 ﻿<Window x:Class="Pingy.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:this="clr-namespace:Pingy;assembly="
+        xmlns:this="clr-namespace:Pingy"
         ContentRendered="Window_ContentRendered"
         Loaded="Window_Loaded">
 

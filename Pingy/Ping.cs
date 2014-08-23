@@ -1,11 +1,16 @@
-﻿using System;
+﻿using System.Net;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace Pingy
 {
     class Ping : ViewModelBase
     {
-        public enum PingStatus { None, Updating, Success, Failure };
+        public enum PingStatus { None, Updating, Success, Failure, DnsResolutionError };
+
+        #region Fields
+        private bool _isIpAddress = false;
+        #endregion
 
         #region Properties
         private string _address = string.Empty;
@@ -56,6 +61,12 @@ namespace Pingy
         public Ping(string address)
         {
             this.Address = address;
+
+            IPAddress ipAddress = null;
+            if (IPAddress.TryParse(address, out ipAddress))
+            {
+                this._isIpAddress = true;
+            }
         }
 
         public async Task PingAsync()
@@ -63,19 +74,53 @@ namespace Pingy
             Status = PingStatus.Updating;
             Tooltip = string.Format("Updating {0} ...", this.Address);
 
-            System.Net.NetworkInformation.PingReply reply = await new System.Net.NetworkInformation.Ping().SendPingAsync(this.Address, 1000);
+            System.Net.NetworkInformation.PingReply reply = null;
 
-            if (reply.Status == System.Net.NetworkInformation.IPStatus.Success)
+            if (this._isIpAddress)
             {
-                Status = PingStatus.Success;
-                RoundtripTime = reply.RoundtripTime;
+                reply = await new System.Net.NetworkInformation.Ping().SendPingAsync(this.Address, 1000);
             }
             else
             {
-                Status = PingStatus.Failure;
+                try
+                {
+                    IPAddress[] ipAddresses = await Dns.GetHostAddressesAsync(this.Address);
+
+                    if (ipAddresses.Length > 0)
+                    {
+                        reply = await new System.Net.NetworkInformation.Ping().SendPingAsync(this.Address, 1000);
+                    }
+                }
+                catch (SocketException)
+                {
+                    Status = PingStatus.DnsResolutionError;
+                    Tooltip = string.Format("Failed to resolve {0}", this.Address);
+
+                    return;
+                }
             }
 
-            Tooltip = string.Format("{0} in {1} ms", reply.Status.ToString(), reply.RoundtripTime.ToString());
+
+            if (reply == null)
+            {
+                Status = PingStatus.Failure;
+
+                Tooltip = "Failure";
+            }
+            else
+            {
+                if (reply.Status == System.Net.NetworkInformation.IPStatus.Success)
+                {
+                    Status = PingStatus.Success;
+                    RoundtripTime = reply.RoundtripTime;
+                }
+                else
+                {
+                    Status = PingStatus.Failure;
+                }
+
+                Tooltip = string.Format("{0} in {1} ms", reply.Status.ToString(), reply.RoundtripTime.ToString());
+            }
         }
     }
 }
