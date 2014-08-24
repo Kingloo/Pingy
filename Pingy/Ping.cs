@@ -89,15 +89,15 @@ namespace Pingy
 
             if (this.isIpAddress)
             {
-                reply = await PingIpAddress(ipAddress);
+                reply = await PingIpAddress(ipAddress).ConfigureAwait(false);
             }
             else
             {
-                bool canResolveHostName = await TryResolveHostName(hostName);
+                bool canResolveHostName = await TryResolveHostName(hostName).ConfigureAwait(false);
 
                 if (canResolveHostName)
                 {
-                    reply = await PingHostName(hostName);
+                    reply = await PingHostName(hostName).ConfigureAwait(false);
                 }
             }
 
@@ -108,7 +108,7 @@ namespace Pingy
         {
             System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
 
-            return await ping.SendPingAsync(ipAddress, timeout);
+            return await ping.SendPingAsync(ipAddress, timeout).ConfigureAwait(false);
         }
 
         private async Task<bool> TryResolveHostName(string hostName)
@@ -117,7 +117,7 @@ namespace Pingy
 
             try
             {
-                ipAddresses = await Dns.GetHostAddressesAsync(hostName);
+                ipAddresses = await Dns.GetHostAddressesAsync(hostName).ConfigureAwait(false);
             }
             catch (SocketException)
             {
@@ -138,7 +138,7 @@ namespace Pingy
         {
             System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
 
-            return await ping.SendPingAsync(hostName, timeout);
+            return await ping.SendPingAsync(hostName, timeout).ConfigureAwait(false);
         }
 
         private void ParsePingReply(System.Net.NetworkInformation.PingReply reply)

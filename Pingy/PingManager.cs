@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Threading;
+using System.Linq;
 
 namespace Pingy
 {
@@ -114,10 +115,7 @@ namespace Pingy
             {
                 active = true;
 
-                foreach (Ping each in Pings)
-                {
-                    await each.PingAsync();
-                }
+                await Task.WhenAll(from each in Pings select each.PingAsync());
 
                 active = false;
             }
