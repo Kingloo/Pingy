@@ -68,8 +68,6 @@ namespace Pingy
             _updateTimer.IsEnabled = true;
         }
 
-        
-
         private async void mainWindow_Loaded(object sender, System.Windows.RoutedEventArgs e)
         {
             bool didLoadAddresses = await LoadAddressesFromFileAsync();
