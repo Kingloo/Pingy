@@ -12,7 +12,7 @@ namespace Pingy
         private bool isIpAddress = false;
         private IPAddress ipAddress = null;
         private string hostName = string.Empty;
-        private const int timeout = 500;
+        private const int timeout = 1000;
         #endregion
 
         #region Properties
