@@ -21,7 +21,7 @@
             </DataTemplate.Resources>
             
             <Grid Background="{Binding Path=Status, Converter={StaticResource pingStatusToColourConverter}}"
-                  Margin="0,15,0,0">
+                  Margin="0,10,0,0">
                 
                 <Grid.ToolTip>
                     <TextBlock Text="{Binding Path=Tooltip}"

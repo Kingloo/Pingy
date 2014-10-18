@@ -50,7 +50,7 @@
             </Style>
             
             <Style TargetType="{x:Type StackPanel}" x:Key="ItemsControlItemsPanelStackPanel" BasedOn="{StaticResource {x:Type FrameworkElement}}">
-                <Setter Property="Margin" Value="15,0,15,15" />
+                <Setter Property="Margin" Value="10,0,10,10" />
             </Style>
             
         </ResourceDictionary>
