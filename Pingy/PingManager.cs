@@ -86,7 +86,18 @@ namespace Pingy
 
         public async Task<bool> LoadAddressesFromFileAsync()
         {
-            using (FileStream fsAsync = new FileStream(addressesFilePath, FileMode.Open, FileAccess.Read, FileShare.None, 4096, true))
+            FileStream fsAsync = null;
+
+            try
+            {
+                fsAsync = new FileStream(addressesFilePath, FileMode.Open, FileAccess.Read, FileShare.None, 4096, true);
+            }
+            catch (FileNotFoundException)
+            {
+                return false;
+            }
+
+            using (fsAsync)
             {
                 using (StreamReader sr = new StreamReader(fsAsync))
                 {
