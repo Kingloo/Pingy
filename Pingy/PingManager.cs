@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Threading;
 
 namespace Pingy
@@ -17,25 +18,82 @@ namespace Pingy
             {
                 if (this._pingAllAsyncCommand == null)
                 {
-                    this._pingAllAsyncCommand = new DelegateCommandAsync(new Func<object, Task>(PingAllAsync), canExecutePinging);
+                    this._pingAllAsyncCommand = new DelegateCommandAsync(new Func<Task>(PingAllAsync), canExecutePinging);
                 }
 
                 return this._pingAllAsyncCommand;
             }
         }
 
-        private DelegateCommandAsync _pingAsyncCommand = null;
-        public DelegateCommandAsync PingAsyncCommand
+        public async Task PingAllAsync()
+        {
+            if (this.Pings.Count > 0)
+            {
+                active = true;
+
+                await Task.WhenAll(from each in Pings select each.PingAsync());
+
+                active = false;
+            }
+        }
+
+        private DelegateCommandAsync<Ping> _pingAsyncCommand = null;
+        public DelegateCommandAsync<Ping> PingAsyncCommand
         {
             get
             {
                 if (this._pingAsyncCommand == null)
                 {
-                    this._pingAsyncCommand = new DelegateCommandAsync(new Func<object, Task>(PingAsync), canExecutePinging);
+                    this._pingAsyncCommand = new DelegateCommandAsync<Ping>(new Func<Ping, Task>(PingAsync), canExecutePinging);
                 }
 
                 return this._pingAsyncCommand;
             }
+        }
+
+        public async Task PingAsync(Ping ping)
+        {
+            active = true;
+
+            await ping.PingAsync();
+
+            active = false;
+        }
+
+        private DelegateCommand _exitCommand = null;
+        public DelegateCommand ExitCommand
+        {
+            get
+            {
+                if (this._exitCommand == null)
+                {
+                    this._exitCommand = new DelegateCommand(Exit, canExecute);
+                }
+
+                return this._exitCommand;
+            }
+        }
+
+        private void Exit()
+        {
+            Application.Current.Shutdown();
+        }
+
+        private bool canExecutePinging(object parameter)
+        {
+            if (active)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        private bool canExecute(object _)
+        {
+            return true;
         }
         #endregion
 
@@ -63,7 +121,7 @@ namespace Pingy
             _updateTimer.Interval = new TimeSpan(_updateTimerHours, _updateTimerMinutes, _updateTimerSeconds);
             _updateTimer.Tick += async (sender, e) =>
                 {
-                    await PingAllAsync(null);
+                    await PingAllAsync();
                 };
 
             _updateTimer.IsEnabled = true;
@@ -75,7 +133,7 @@ namespace Pingy
 
             if (didLoadAddresses)
             {
-                await PingAllAsync(null);
+                await PingAllAsync();
             }
         }
 
@@ -117,41 +175,6 @@ namespace Pingy
             else
             {
                 return false;
-            }
-        }
-
-        public async Task PingAllAsync(object parameter)
-        {
-            if (this.Pings.Count > 0)
-            {
-                active = true;
-
-                await Task.WhenAll(from each in Pings select each.PingAsync());
-
-                active = false;
-            }
-        }
-
-        public async Task PingAsync(object parameter)
-        {
-            active = true;
-            
-            Ping ping = (Ping)parameter;
-
-            await ping.PingAsync();
-
-            active = false;
-        }
-
-        private bool canExecutePinging(object parameter)
-        {
-            if (active)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
             }
         }
     }

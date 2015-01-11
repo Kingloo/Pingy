@@ -6,6 +6,8 @@
     <Window.InputBindings>
         <KeyBinding Command="{Binding Path=PingAllAsyncCommand}"
                     Key="{StaticResource PingAllAsyncCommandKey}" />
+        <KeyBinding Command="{Binding Path=ExitCommand}"
+                    Key="Escape" />
     </Window.InputBindings>
     
     <Window.Resources>
