@@ -9,10 +9,27 @@ namespace Pingy
         {
             InitializeComponent();
 
-            this.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
+            this.MaxHeight = CalculateMaxHeight();
 
-            PingManager pingManager = new PingManager(this);
-            this.DataContext = pingManager;
+            this.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
+        }
+
+        private double CalculateMaxHeight()
+        {
+            double screenHeight = SystemParameters.WorkArea.Bottom;
+            double maxHeight = screenHeight - 150;
+
+            return maxHeight;
+        }
+
+        private void Window_ContentRendered(object sender, EventArgs e)
+        {
+            Utils.SetWindowToMiddleOfScreen(this);
+        }
+
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            await vm.PingAllAsync().ConfigureAwait(false);
         }
     }
 }

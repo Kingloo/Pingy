@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -31,7 +32,9 @@ namespace Pingy
             {
                 active = true;
 
-                await Task.WhenAll(from each in Pings select each.PingAsync());
+                IEnumerable<Task> pingTasks = from each in Pings select each.PingAsync();
+                
+                await Task.WhenAll(pingTasks).ConfigureAwait(false);
 
                 active = false;
             }
@@ -53,11 +56,7 @@ namespace Pingy
 
         public async Task PingAsync(Ping ping)
         {
-            active = true;
-
-            await ping.PingAsync();
-
-            active = false;
+            await ping.PingAsync().ConfigureAwait(false);
         }
 
         private DelegateCommand _exitCommand = null;
@@ -76,19 +75,12 @@ namespace Pingy
 
         private void Exit()
         {
-            Application.Current.Shutdown();
+            Application.Current.MainWindow.Close();
         }
 
         private bool canExecutePinging(object parameter)
         {
-            if (active)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            return !active;
         }
 
         private bool canExecute(object _)
@@ -98,13 +90,9 @@ namespace Pingy
         #endregion
 
         #region Fields
-        private readonly MainWindow mainWindow = null;
         private bool active = false;
-        private readonly string addressesFilePath = string.Format(@"C:\Users\{0}\Documents\PingyAddresses.txt", Environment.UserName);
-        private DispatcherTimer _updateTimer = new DispatcherTimer(DispatcherPriority.SystemIdle);
-        private int _updateTimerHours = 0;
-        private int _updateTimerMinutes = 5;
-        private int _updateTimerSeconds = 0;
+        private DispatcherTimer updateTimer = null;
+        private readonly TimeSpan updateTimeSpan = new TimeSpan(0, 5, 0); // hours, minutes, seconds
         #endregion
 
         #region Properties
@@ -112,70 +100,26 @@ namespace Pingy
         public ObservableCollection<Ping> Pings { get { return this._pings; } }
         #endregion
 
-        public PingManager(MainWindow mainWindow)
+        public PingManager()
         {
-            this.mainWindow = mainWindow;
-            this.mainWindow.Loaded += mainWindow_Loaded;
-            this.mainWindow.ContentRendered += mainWindow_ContentRendered;
+            IEnumerable<Ping> newPings = from each in Program.Addresses
+                                         select new Ping(each);
 
-            _updateTimer.Interval = new TimeSpan(_updateTimerHours, _updateTimerMinutes, _updateTimerSeconds);
-            _updateTimer.Tick += async (sender, e) =>
-                {
-                    await PingAllAsync();
-                };
+            this.Pings.AddList<Ping>(newPings);
 
-            _updateTimer.IsEnabled = true;
+            updateTimer = new DispatcherTimer
+            {
+                Interval = updateTimeSpan,
+                IsEnabled = false
+            };
+
+            updateTimer.Tick += updateTimer_Tick;
+            updateTimer.IsEnabled = true;
         }
 
-        private async void mainWindow_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        private async void updateTimer_Tick(object sender, EventArgs e)
         {
-            bool didLoadAddresses = await LoadAddressesFromFileAsync();
-
-            if (didLoadAddresses)
-            {
-                await PingAllAsync();
-            }
-        }
-
-        private void mainWindow_ContentRendered(object sender, EventArgs e)
-        {
-            Misc.SetWindowToMiddleOfScreen(this.mainWindow);
-        }
-
-        public async Task<bool> LoadAddressesFromFileAsync()
-        {
-            FileStream fsAsync = null;
-
-            try
-            {
-                fsAsync = new FileStream(addressesFilePath, FileMode.Open, FileAccess.Read, FileShare.None, 4096, true);
-            }
-            catch (FileNotFoundException)
-            {
-                return false;
-            }
-
-            using (fsAsync)
-            {
-                using (StreamReader sr = new StreamReader(fsAsync))
-                {
-                    string line = string.Empty;
-
-                    while ((line = await sr.ReadLineAsync()) != null)
-                    {
-                        this.Pings.Add(new Ping(line));
-                    }
-                }
-            }
-
-            if (this.Pings.Count > 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            await PingAllAsync().ConfigureAwait(false);
         }
     }
 }

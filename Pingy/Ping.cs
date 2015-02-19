@@ -124,14 +124,7 @@ namespace Pingy
                 return false;
             }
 
-            if (ipAddresses.Length > 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return (ipAddresses.Length > 0);
         }
 
         private async Task<System.Net.NetworkInformation.PingReply> PingHostName(string hostName)

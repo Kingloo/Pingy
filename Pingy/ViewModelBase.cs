@@ -18,8 +18,5 @@ namespace Pingy
                 pceh(this, args);
             }
         }
-
-        private System.Windows.Threading.Dispatcher _dispatcher = System.Windows.Application.Current.Dispatcher;
-        public System.Windows.Threading.Dispatcher Disp { get { return this._dispatcher; } }
     }
 }
