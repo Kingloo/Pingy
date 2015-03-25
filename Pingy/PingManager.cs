@@ -92,7 +92,6 @@ namespace Pingy
         #region Fields
         private bool active = false;
         private DispatcherTimer updateTimer = null;
-        private readonly TimeSpan updateTimeSpan = new TimeSpan(0, 5, 0); // hours, minutes, seconds
         #endregion
 
         #region Properties
@@ -109,7 +108,7 @@ namespace Pingy
 
             updateTimer = new DispatcherTimer
             {
-                Interval = updateTimeSpan,
+                Interval = new TimeSpan(0, 0, 30), // hours, minutes, seconds
                 IsEnabled = false
             };
 
