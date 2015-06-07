@@ -9,9 +9,9 @@ namespace Pingy
         {
             InitializeComponent();
 
-            this.MaxHeight = CalculateMaxHeight();
+            MaxHeight = CalculateMaxHeight();
 
-            this.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
+            WindowStartupLocation = WindowStartupLocation.CenterScreen;
         }
 
         private double CalculateMaxHeight()

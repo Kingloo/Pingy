@@ -17,12 +17,12 @@ namespace Pingy
         {
             get
             {
-                if (this._pingAllAsyncCommand == null)
+                if (_pingAllAsyncCommand == null)
                 {
-                    this._pingAllAsyncCommand = new DelegateCommandAsync(new Func<Task>(PingAllAsync), canExecutePinging);
+                    _pingAllAsyncCommand = new DelegateCommandAsync(PingAllAsync, canExecuteAsync);
                 }
 
-                return this._pingAllAsyncCommand;
+                return _pingAllAsyncCommand;
             }
         }
 
@@ -32,7 +32,8 @@ namespace Pingy
             {
                 active = true;
 
-                IEnumerable<Task> pingTasks = from each in Pings select each.PingAsync();
+                IEnumerable<Task> pingTasks = from each in Pings
+                                              select each.PingAsync();
                 
                 await Task.WhenAll(pingTasks).ConfigureAwait(false);
 
@@ -45,12 +46,12 @@ namespace Pingy
         {
             get
             {
-                if (this._pingAsyncCommand == null)
+                if (_pingAsyncCommand == null)
                 {
-                    this._pingAsyncCommand = new DelegateCommandAsync<Ping>(new Func<Ping, Task>(PingAsync), canExecutePinging);
+                    _pingAsyncCommand = new DelegateCommandAsync<Ping>(PingAsync, canExecuteAsync);
                 }
 
-                return this._pingAsyncCommand;
+                return _pingAsyncCommand;
             }
         }
 
@@ -64,12 +65,12 @@ namespace Pingy
         {
             get
             {
-                if (this._exitCommand == null)
+                if (_exitCommand == null)
                 {
-                    this._exitCommand = new DelegateCommand(Exit, canExecute);
+                    _exitCommand = new DelegateCommand(Exit, canExecute);
                 }
 
-                return this._exitCommand;
+                return _exitCommand;
             }
         }
 
@@ -78,25 +79,29 @@ namespace Pingy
             Application.Current.MainWindow.Close();
         }
 
-        private bool canExecutePinging(object parameter)
-        {
-            return !active;
-        }
-
         private bool canExecute(object _)
         {
             return true;
+        }
+
+        private bool canExecuteAsync(object _)
+        {
+            return !active;
         }
         #endregion
 
         #region Fields
         private bool active = false;
-        private DispatcherTimer updateTimer = null;
+
+        private readonly DispatcherTimer updateTimer = new DispatcherTimer
+        {
+            Interval = new TimeSpan(0, 0, 18)
+        };
         #endregion
 
         #region Properties
         private ObservableCollection<Ping> _pings = new ObservableCollection<Ping>();
-        public ObservableCollection<Ping> Pings { get { return this._pings; } }
+        public ObservableCollection<Ping> Pings { get { return _pings; } }
         #endregion
 
         public PingManager()
@@ -104,16 +109,10 @@ namespace Pingy
             IEnumerable<Ping> newPings = from each in Program.Addresses
                                          select new Ping(each);
 
-            this.Pings.AddList<Ping>(newPings);
-
-            updateTimer = new DispatcherTimer
-            {
-                Interval = new TimeSpan(0, 0, 30), // hours, minutes, seconds
-                IsEnabled = false
-            };
+            Pings.AddList<Ping>(newPings);
 
             updateTimer.Tick += updateTimer_Tick;
-            updateTimer.IsEnabled = true;
+            updateTimer.Start();
         }
 
         private async void updateTimer_Tick(object sender, EventArgs e)

@@ -6,7 +6,14 @@ namespace Pingy
 {
     public class Ping : ViewModelBase
     {
-        public enum PingStatus { None, Updating, Success, Failure, DnsResolutionError };
+        public enum PingStatus
+        {
+            None,
+            Updating,
+            Success,
+            Failure,
+            DnsResolutionError
+        };
 
         #region Fields
         private bool isIpAddress = false;
@@ -35,13 +42,13 @@ namespace Pingy
         {
             get
             {
-                if (this.Status == PingStatus.Success)
+                if (Status == PingStatus.Success)
                 {
-                    return string.Format("{0} in {1} ms", this.Status.ToString(), this.RoundtripTime.ToString());
+                    return string.Format("{0} in {1} ms", Status.ToString(), RoundtripTime.ToString());
                 }
                 else
                 {
-                    return this.Status.ToString();
+                    return Status.ToString();
                 }
             }
         }
@@ -49,10 +56,14 @@ namespace Pingy
         private PingStatus _status = PingStatus.None;
         public PingStatus Status
         {
-            get { return this._status; }
+            get
+            {
+                return _status;
+            }
             set
             {
-                this._status = value;
+                _status = value;
+
                 OnPropertyChanged();
                 OnPropertyChanged("Tooltip");
             }
@@ -61,10 +72,14 @@ namespace Pingy
         private long _roundtripTime = 0;
         public long RoundtripTime
         {
-            get { return this._roundtripTime; }
+            get
+            {
+                return _roundtripTime;
+            }
             set
             {
-                this._roundtripTime = value;
+                _roundtripTime = value;
+
                 OnPropertyChanged();
             }
         }
@@ -72,7 +87,7 @@ namespace Pingy
 
         public Ping(string address)
         {
-            if (IPAddress.TryParse(address, out this.ipAddress))
+            if (IPAddress.TryParse(address, out ipAddress))
             {
                 this.isIpAddress = true;
             }
@@ -87,7 +102,7 @@ namespace Pingy
             Status = PingStatus.Updating;
             System.Net.NetworkInformation.PingReply reply = null;
 
-            if (this.isIpAddress)
+            if (isIpAddress)
             {
                 reply = await PingIpAddress(ipAddress).ConfigureAwait(false);
             }
@@ -138,19 +153,19 @@ namespace Pingy
         {
             if (reply == null)
             {
-                this.Status = PingStatus.DnsResolutionError;
+                Status = PingStatus.DnsResolutionError;
             }
             else
             {
-                this.RoundtripTime = reply.RoundtripTime;
+                RoundtripTime = reply.RoundtripTime;
 
                 if (reply.Status == System.Net.NetworkInformation.IPStatus.Success)
                 {
-                    this.Status = PingStatus.Success;
+                    Status = PingStatus.Success;
                 }
                 else
                 {
-                    this.Status = PingStatus.Failure;
+                    Status = PingStatus.Failure;
                 }
             }
         }

@@ -7,7 +7,7 @@ namespace Pingy
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected void OnPropertyChanged([CallerMemberName]string propertyName = "")
+        protected void OnPropertyChanged([CallerMemberName]string propertyName = default(string))
         {
             PropertyChangedEventHandler pceh = this.PropertyChanged;
 
