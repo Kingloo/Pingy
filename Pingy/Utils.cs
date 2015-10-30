@@ -16,7 +16,7 @@ namespace Pingy
         private static int loggingRounds = 5;
         private static string logFilePath = string.Format(@"C:\Users\{0}\Documents\logfile.txt", Environment.UserName);
         
-
+        
         public static void SetWindowToMiddleOfScreen(Window window)
         {
             double screenHeight = SystemParameters.PrimaryScreenHeight;
