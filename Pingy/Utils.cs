@@ -1,223 +1,21 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using Pingy.Extensions;
 
 namespace Pingy
 {
     public static class Utils
     {
-        public static void OpenUriInBrowser(string uri)
-        {
-            Uri tmp = null;
-
-            if (Uri.TryCreate(uri, UriKind.Absolute, out tmp))
-            {
-                System.Diagnostics.Process.Start(tmp.AbsoluteUri);
-            }
-            else
-            {
-                Utils.LogMessage(string.Format("Uri.TryCreate returned false on {0}", uri));
-            }
-        }
-
-        public static void OpenUriInBrowser(Uri uri)
-        {
-            if (uri.IsAbsoluteUri)
-            {
-                System.Diagnostics.Process.Start(uri.AbsoluteUri);
-            }
-            else
-            {
-                Utils.LogMessage(string.Format("Uri ({0}) was not absolute", uri.OriginalString));
-            }
-        }
-
-
-        public static void LogMessage(string message)
-        {
-            string logFilePath = string.Format(@"C:\Users\{0}\Documents\logfile.txt", Environment.UserName);
-
-            StringBuilder sb = new StringBuilder();
-
-            sb.AppendLine(string.Format("{0} logged the following message at {1}", Application.Current.ToString(), DateTime.Now));
-            sb.AppendLine(message);
-            sb.AppendLine(Environment.NewLine);
-
-            using (FileStream fs = new FileStream(logFilePath, FileMode.Append, FileAccess.Write, FileShare.None, 4096, false))
-            {
-                using (StreamWriter sw = new StreamWriter(fs))
-                {
-                    sw.Write(sb.ToString());
-                }
-            }
-        }
-
-        public static async Task LogMessageAsync(string message)
-        {
-            string logFilePath = string.Format(@"C:\Users\{0}\Documents\logfile.txt", Environment.UserName);
-
-            StringBuilder sb = new StringBuilder();
-
-            sb.AppendLine(string.Format("{0} logged the following message at {1}", Application.Current.ToString(), DateTime.Now));
-            sb.AppendLine(message);
-            sb.AppendLine(Environment.NewLine);
-
-            using (FileStream fsAsync = new FileStream(logFilePath, FileMode.Append, FileAccess.Write, FileShare.None, 4096, true))
-            {
-                using (StreamWriter sw = new StreamWriter(fsAsync))
-                {
-                    await sw.WriteAsync(sb.ToString()).ConfigureAwait(false);
-                }
-            }
-        }
-
-
-        public static void LogException(Exception e)
-        {
-            string logFilePath = string.Format(@"C:\Users\{0}\Documents\logfile.txt", Environment.UserName);
-
-            StringBuilder sb = new StringBuilder();
-
-            sb.AppendLine(string.Format("{0} occurred in {1} at {2}", e.GetType().ToString(), Application.Current.ToString(), DateTime.Now));
-
-            sb.AppendLine(e.Message);
-            sb.AppendLine(e.StackTrace);
-            sb.AppendLine(Environment.NewLine);
-
-            using (FileStream fs = new FileStream(logFilePath, FileMode.Append, FileAccess.Write, FileShare.None, 4096, false))
-            {
-                using (StreamWriter sw = new StreamWriter(fs))
-                {
-                    sw.Write(sb.ToString());
-                }
-            }
-        }
-
-        public static void LogException(Exception e, string message)
-        {
-            string logFilePath = string.Format(@"C:\Users\{0}\Documents\logfile.txt", Environment.UserName);
-
-            StringBuilder sb = new StringBuilder();
-
-            sb.AppendLine(string.Format("{0} occurred in {1} at {2}", e.GetType().ToString(), Application.Current.ToString(), DateTime.Now));
-            sb.AppendLine(message);
-            sb.AppendLine(e.Message);
-            sb.AppendLine(e.StackTrace);
-            sb.AppendLine(Environment.NewLine);
-
-            using (FileStream fs = new FileStream(logFilePath, FileMode.Append, FileAccess.Write, FileShare.None, 4096, false))
-            {
-                using (StreamWriter sw = new StreamWriter(fs))
-                {
-                    sw.Write(sb.ToString());
-                }
-            }
-        }
-
-        public static async Task LogExceptionAsync(Exception e)
-        {
-            string logFilePath = string.Format(@"C:\Users\{0}\Documents\logfile.txt", Environment.UserName);
-
-            StringBuilder sb = new StringBuilder();
-
-            sb.AppendLine(string.Format("{0} occurred in {1} at {2}", e.GetType().ToString(), Application.Current.ToString(), DateTime.Now));
-            sb.AppendLine(e.Message);
-            sb.AppendLine(e.StackTrace);
-            sb.AppendLine(Environment.NewLine);
-
-            using (FileStream fsAsync = new FileStream(logFilePath, FileMode.Append, FileAccess.Write, FileShare.None, 4096, true))
-            {
-                using (StreamWriter sw = new StreamWriter(fsAsync))
-                {
-                    await sw.WriteAsync(sb.ToString()).ConfigureAwait(false);
-                }
-            }
-        }
-
-        public static async Task LogExceptionAsync(Exception e, string message)
-        {
-            string logFilePath = string.Format(@"C:\Users\{0}\Documents\logfile.txt", Environment.UserName);
-
-            StringBuilder sb = new StringBuilder();
-
-            sb.AppendLine(string.Format("{0} occurred in {1} at {2}", e.GetType().ToString(), Application.Current.ToString(), DateTime.Now));
-            sb.AppendLine(message);
-            sb.AppendLine(e.Message);
-            sb.AppendLine(e.StackTrace);
-            sb.AppendLine(Environment.NewLine);
-
-            using (FileStream fsAsync = new FileStream(logFilePath, FileMode.Append, FileAccess.Write, FileShare.None, 4096, true))
-            {
-                using (StreamWriter sw = new StreamWriter(fsAsync))
-                {
-                    await sw.WriteAsync(sb.ToString()).ConfigureAwait(false);
-                }
-            }
-        }
-
-
-        private static bool _useLogging = false;
-
-        public static string DownloadWebsiteAsString(HttpWebRequest req, int rounds = 1)
-        {
-            string response = string.Empty;
-
-            using (HttpWebResponse resp = (HttpWebResponse)req.GetResponseExt(_useLogging, rounds))
-            {
-                if (resp != null)
-                {
-                    if (resp.StatusCode == HttpStatusCode.OK)
-                    {
-                        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
-                        {
-                            try
-                            {
-                                response = sr.ReadToEnd();
-                            }
-                            catch (IOException)
-                            {
-                                response = string.Empty;
-                            }
-                        }
-                    }
-                }
-            }
-
-            return response;
-        }
-
-        public static async Task<string> DownloadWebsiteAsStringAsync(HttpWebRequest req, int rounds = 1)
-        {
-            string response = string.Empty;
-
-            using (HttpWebResponse resp = (HttpWebResponse)(await req.GetResponseAsyncExt(_useLogging, rounds)))
-            {
-                if (resp != null)
-                {
-                    if (resp.StatusCode == HttpStatusCode.OK)
-                    {
-                        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
-                        {
-                            try
-                            {
-                                response = await sr.ReadToEndAsync().ConfigureAwait(false);
-                            }
-                            catch (IOException)
-                            {
-                                response = string.Empty;
-                            }
-                        }
-                    }
-                }
-            }
-
-            return response;
-        }
-
+        private static int loggingRounds = 5;
+        private static string logFilePath = string.Format(@"C:\Users\{0}\Documents\logfile.txt", Environment.UserName);
+        
 
         public static void SetWindowToMiddleOfScreen(Window window)
         {
@@ -230,16 +28,347 @@ namespace Pingy
             window.Left = (screenWidth / 2) - (windowWidth / 2);
         }
 
-        public static void SafeDispatcher(Action action, DispatcherPriority priority = DispatcherPriority.Normal)
+        public static void SafeDispatcher(Action action, DispatcherPriority priority = DispatcherPriority.Background)
         {
-            if (Application.Current.Dispatcher.CheckAccess())
+            if (action == null) throw new ArgumentNullException("Utils.SafeDispatcher: action was null");
+
+            Dispatcher disp = Application.Current.Dispatcher;
+
+            if (disp.CheckAccess())
             {
                 action();
             }
             else
             {
-                Application.Current.Dispatcher.Invoke(action, priority);
+                disp.Invoke(action, priority);
             }
+        }
+
+        public static async Task SafeDispatcherAsync(Action action, DispatcherPriority priority = DispatcherPriority.Background)
+        {
+            if (action == null) throw new ArgumentNullException("Utils.SafeDispatcherAsync: action was null");
+
+            Dispatcher disp = Application.Current.Dispatcher;
+
+            if (disp.CheckAccess())
+            {
+                await Task.Run(() => action);
+            }
+            else
+            {
+                await disp.InvokeAsync(action, priority);
+            }
+        }
+
+
+        public static void OpenUriInBrowser(string uri)
+        {
+            Uri tmp = null;
+
+            if (Uri.TryCreate(uri, UriKind.Absolute, out tmp))
+            {
+                Process.Start(tmp.AbsoluteUri);
+            }
+            else
+            {
+                string errorMessage = string.Format("Uri.TryCreate returned false on {0}", uri);
+
+                Utils.LogMessage(errorMessage);
+            }
+        }
+
+        public static void OpenUriInBrowser(Uri uri)
+        {
+            if (uri.IsAbsoluteUri)
+            {
+                Process.Start(uri.AbsoluteUri);
+            }
+            else
+            {
+                string errorMessage = string.Format("Uri ({0}) was not absolute", uri.OriginalString);
+
+                Utils.LogMessage(errorMessage);
+            }
+        }
+
+
+        public static void LogMessage(string message)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine(string.Format("{0} logged the following message at {1}", Process.GetCurrentProcess().MainModule.ModuleName, DateTime.Now));
+            sb.AppendLine(message);
+            sb.AppendLine(string.Empty);
+
+            WriteTextToFile(sb.ToString(), loggingRounds);
+        }
+
+        public static async Task LogMessageAsync(string message)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine(string.Format("{0} logged the following message at {1}", Process.GetCurrentProcess().MainModule.ModuleName, DateTime.Now));
+            sb.AppendLine(message);
+            sb.AppendLine(string.Empty);
+
+            await WriteTextToFileAsync(sb.ToString(), loggingRounds).ConfigureAwait(false);
+        }
+
+
+        public static void LogException(Exception e)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine(string.Format("{0} occurred in {1} at {2}", e.GetType().ToString(), Process.GetCurrentProcess().MainModule.ModuleName, DateTime.Now));
+            sb.AppendLine(e.Message);
+            sb.AppendLine(e.StackTrace);
+            sb.AppendLine(string.Empty);
+
+            WriteTextToFile(sb.ToString(), loggingRounds);
+        }
+
+        public static void LogException(Exception e, string message)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine(string.Format("{0} occurred in {1} at {2}", e.GetType().ToString(), Process.GetCurrentProcess().MainModule.ModuleName, DateTime.Now));
+            sb.AppendLine(message);
+            sb.AppendLine(e.Message);
+            sb.AppendLine(e.StackTrace);
+            sb.AppendLine(string.Empty);
+
+            WriteTextToFile(sb.ToString(), loggingRounds);
+        }
+
+        public static async Task LogExceptionAsync(Exception e)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine(string.Format("{0} occurred in {1} at {2}", e.GetType().ToString(), Process.GetCurrentProcess().MainModule.ModuleName, DateTime.Now));
+            sb.AppendLine(e.Message);
+            sb.AppendLine(e.StackTrace);
+            sb.AppendLine(string.Empty);
+
+            await WriteTextToFileAsync(sb.ToString(), loggingRounds).ConfigureAwait(false);
+        }
+
+        public static async Task LogExceptionAsync(Exception e, string message)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine(string.Format("{0} occurred in {1} at {2}", e.GetType().ToString(), Process.GetCurrentProcess().MainModule.ModuleName, DateTime.Now));
+            sb.AppendLine(message);
+            sb.AppendLine(e.Message);
+            sb.AppendLine(e.StackTrace);
+            sb.AppendLine(string.Empty);
+
+            await WriteTextToFileAsync(sb.ToString(), loggingRounds).ConfigureAwait(false);
+        }
+
+
+        private static void WriteTextToFile(string text, int rounds = 1)
+        {
+            if (rounds < 1) throw new ArgumentException("WriteTextToFile: rounds cannot be < 1");
+
+            bool tryAgain = false;
+
+            FileStream fs = null;
+
+            try
+            {
+                using (fs = new FileStream(logFilePath, FileMode.Append, FileAccess.Write, FileShare.None, 1024, false))
+                {
+                    using (StreamWriter sw = new StreamWriter(fs))
+                    {
+                        sw.Write(text);
+                    }
+                }
+            }
+            catch (IOException)
+            {
+                if (fs != null)
+				{
+					fs.Close();
+				}
+				
+				tryAgain = (rounds > 1);
+            }
+
+            if (tryAgain)
+            {
+                int variation = DateTime.UtcNow.Millisecond;
+
+                /*
+                 * we want the delay to increase as the number of attempts left decreases
+                 * as rounds increases, (1 / rounds) decreases
+                 * => as (1 / rounds) decreases, (25 / (1 / rounds)) increases 
+                 * 
+                 * we convert rounds to decimal because otherwise it would do integer division
+                 * e.g. 1 / 3 = 0
+                 */
+                decimal fixedWait = 25 / (1 / Convert.ToDecimal(rounds));
+
+                int toWait = Convert.ToInt32(fixedWait) + variation;
+
+                Thread.Sleep(toWait);
+
+                WriteTextToFile(text, rounds - 1);
+            }
+        }
+
+        private static async Task WriteTextToFileAsync(string text, int rounds = 1)
+        {
+            if (rounds < 1) throw new ArgumentException("WriteTextToFileAsync: rounds cannot be < 1");
+
+            bool tryAgain = false;
+
+            FileStream fsAsync = null;
+
+            try
+            {
+                using (fsAsync = new FileStream(logFilePath, FileMode.Append, FileAccess.Write, FileShare.None, 1024, true))
+                {
+                    using (StreamWriter sw = new StreamWriter(fsAsync))
+                    {
+                        await sw.WriteAsync(text).ConfigureAwait(false);
+                    }
+                }
+            }
+            catch (IOException)
+            {
+                if (fsAsync != null)
+				{
+					fsAsync.Close();
+				}
+				
+				tryAgain = (rounds > 1);
+            }
+
+            if (tryAgain)
+            {
+                int variation = DateTime.UtcNow.Millisecond;
+
+                /*
+                 * we want the delay to increase as the number of attempts left decreases
+                 * as rounds increases, (1 / rounds) decreases
+                 * => as (1 / rounds) decreases, (25 / (1 / rounds)) increases 
+                 * 
+                 * we convert rounds to decimal because otherwise it would do integer division
+                 * e.g. 1 / 3 = 0
+                 */
+                decimal fixedWait = 25 / (1 / Convert.ToDecimal(rounds));
+
+                int toWait = Convert.ToInt32(fixedWait) + variation;
+
+                await Task.Delay(toWait).ConfigureAwait(false);
+
+                await WriteTextToFileAsync(text, rounds - 1).ConfigureAwait(false);
+            }
+        }
+
+
+        public static string DownloadWebsiteAsString(HttpWebRequest req)
+        {
+            StringBuilder sbLog = new StringBuilder();
+
+            string response = string.Empty;
+
+            using (HttpWebResponse resp = (HttpWebResponse)req.GetResponseExt())
+            {
+                if (resp == null)
+                {
+                    if (req != null)
+                    {
+                        sbLog.AppendLine(string.Format("Request for {0} was aborted", req.RequestUri.AbsoluteUri));
+
+                        req.Abort();
+                    }
+                }
+                else
+                {
+                    if (resp.StatusCode == HttpStatusCode.OK)
+                    {
+                        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                        {
+                            try
+                            {
+                                response = sr.ReadToEnd();
+                            }
+                            catch (IOException e)
+                            {
+                                sbLog.AppendLine("Reading the response failed with IOException");
+                                sbLog.AppendLine(e.Message);
+                                sbLog.AppendLine(e.StackTrace);
+
+                                response = string.Empty;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        sbLog.AppendLine(string.Format("Getting website {0} failed: {1}", req.RequestUri.AbsoluteUri, resp.StatusCode.ToString()));
+                    }
+                }
+            }
+
+            if (sbLog.Length > 0)
+            {
+                Utils.LogMessage(sbLog.ToString());
+            }
+
+            return response;
+        }
+
+        public static async Task<string> DownloadWebsiteAsStringAsync(HttpWebRequest req)
+        {
+            StringBuilder sbLog = new StringBuilder();
+
+            string response = string.Empty;
+
+            using (HttpWebResponse resp = (HttpWebResponse)(await req.GetResponseAsyncExt().ConfigureAwait(false)))
+            {
+                if (resp == null)
+                {
+                    if (req != null)
+                    {
+                        sbLog.AppendLine(string.Format("Request for {0} was aborted", req.RequestUri.AbsoluteUri));
+
+                        req.Abort();
+                    }
+                }
+                else
+                {
+                    if (resp.StatusCode == HttpStatusCode.OK)
+                    {
+                        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                        {
+                            try
+                            {
+                                response = await sr.ReadToEndAsync().ConfigureAwait(false);
+                            }
+                            catch (IOException e)
+                            {
+                                sbLog.AppendLine("Reading the response failed with IOException");
+                                sbLog.AppendLine(e.Message);
+                                sbLog.AppendLine(e.StackTrace);
+
+                                response = string.Empty;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        sbLog.AppendLine(string.Format("Getting website {0} failed: {1}", req.RequestUri.AbsoluteUri, resp.StatusCode.ToString()));
+                    }
+                }
+            }
+
+            if (sbLog.Length > 0)
+            {
+                await Utils.LogMessageAsync(sbLog.ToString()).ConfigureAwait(false);
+            }
+
+            return response;
         }
     }
 }

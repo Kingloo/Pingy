@@ -9,6 +9,8 @@ namespace Pingy
         {
             InitializeComponent();
 
+            DataContext = new PingManager(this);
+
             MaxHeight = CalculateMaxHeight();
 
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
@@ -25,11 +27,6 @@ namespace Pingy
         private void Window_ContentRendered(object sender, EventArgs e)
         {
             Utils.SetWindowToMiddleOfScreen(this);
-        }
-
-        private async void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            await vm.PingAllAsync().ConfigureAwait(false);
         }
     }
 }

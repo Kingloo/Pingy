@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Pingy
@@ -168,6 +169,24 @@ namespace Pingy
                     Status = PingStatus.Failure;
                 }
             }
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine(this.GetType().ToString());
+            sb.AppendLine(hostName);
+            sb.AppendLine(isIpAddress.ToString());
+
+            if (isIpAddress)
+            {
+                sb.AppendLine(ipAddress.ToString());
+            }
+
+            sb.AppendLine(timeout.ToString());
+
+            return sb.ToString();
         }
     }
 }

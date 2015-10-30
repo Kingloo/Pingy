@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -104,15 +103,31 @@ namespace Pingy
         public ObservableCollection<Ping> Pings { get { return _pings; } }
         #endregion
 
-        public PingManager()
+        public PingManager(MainWindow window)
         {
-            IEnumerable<Ping> newPings = from each in Program.Addresses
-                                         select new Ping(each);
-
-            Pings.AddList<Ping>(newPings);
+            window.Loaded += window_Loaded;
 
             updateTimer.Tick += updateTimer_Tick;
             updateTimer.Start();
+        }
+
+        private async void window_Loaded(object sender, RoutedEventArgs e)
+        {
+            IReadOnlyCollection<string> loaded = await ((App)App.Current).Repo.LoadAsync();
+
+            AddPings(loaded);
+
+            await PingAllAsync().ConfigureAwait(false);
+        }
+
+        private void AddPings(IReadOnlyCollection<string> loaded)
+        {
+            foreach (string each in loaded)
+            {
+                Ping ping = new Ping(each);
+
+                Pings.Add(ping);
+            }
         }
 
         private async void updateTimer_Tick(object sender, EventArgs e)

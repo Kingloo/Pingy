@@ -28,7 +28,7 @@
     <ProductName>Pingy</ProductName>
     <PublisherName>Kingloo Holdings Ltd.</PublisherName>
     <DisallowUrlActivation>true</DisallowUrlActivation>
-    <ApplicationRevision>17</ApplicationRevision>
+    <ApplicationRevision>18</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -74,7 +74,7 @@
     <ManifestCertificateThumbprint>AC7C248A5246FD93931EE703A4ACABF0285DF4DB</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <GenerateManifests>false</GenerateManifests>
+    <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -132,9 +132,12 @@
       <SubType>Designer</SubType>
     </Page>
     <Compile Include="DelegateCommand.cs" />
-    <Compile Include="Extensions.cs" />
+    <Compile Include="Extensions\HttpWebRequest.cs" />
+    <Compile Include="Extensions\ICollectionT.cs" />
+    <Compile Include="Extensions\String.cs" />
     <Compile Include="PingStatusToColourConverter.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="TxtRepo.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="ViewModelBase.cs" />
     <Page Include="MainWindow.xaml">

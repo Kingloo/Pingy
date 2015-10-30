@@ -1,65 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace Pingy
 {
     public class Program
     {
-        private static string addressesFilePath = string.Format(@"C:\Users\{0}\Documents\PingyAddresses.txt", Environment.UserName);
-
-        private static List<string> _addresses = new List<string>();
-        public static List<string> Addresses { get { return _addresses; } }
+        private static readonly string addressesFilePath = string.Format(@"C:\Users\{0}\Documents\PingyAddresses.txt", Environment.UserName);
 
         [STAThread]
-        public static int Main(string[] args)
+        public static int Main()
         {
-            LoadFromFileAsync().Wait();
+            TxtRepo repo = new TxtRepo(addressesFilePath);
 
-            App app = new App();
+            App app = new App(repo);
             app.InitializeComponent();
 
-            return app.Run();
-        }
+            int exitCode = app.Run();
 
-        public async static Task LoadFromFileAsync()
-        {
-            FileStream fsAsync = null;
-
-            try
+            if (exitCode != 0)
             {
-                fsAsync = new FileStream(addressesFilePath, FileMode.Open, FileAccess.Read, FileShare.None, 1024, true);
-            }
-            catch (FileNotFoundException)
-            {
-                if (fsAsync != null)
-                {
-                    fsAsync.Close();
-                }
+                string errorMessage = string.Format("exited with code: {0}", exitCode);
 
-                File.Create(addressesFilePath);
-
-                return;
+                Utils.LogMessage(errorMessage);
             }
 
-            using (StreamReader sr = new StreamReader(fsAsync))
-            {
-                string line = string.Empty;
-
-                while ((line = await sr.ReadLineAsync().ConfigureAwait(false)) != null)
-                {
-                    if (line.StartsWith("#") == false)
-                    {
-                        _addresses.Add(line);
-                    }
-                }
-            }
-
-            if (fsAsync != null)
-            {
-                fsAsync.Close();
-            }
+            return exitCode;
         }
     }
 }
