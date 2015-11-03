@@ -7,21 +7,23 @@ namespace Pingy
 {
     public interface IRepo
     {
-        Task<IReadOnlyCollection<string>> LoadAsync();
+        string FilePath { get; }
+        Task<IEnumerable<Ping>> LoadAsync();
     }
 
     public class TxtRepo : IRepo
     {
         private string filePath = string.Empty;
+        public string FilePath { get { return filePath; } }
 
         public TxtRepo(string filePath)
         {
             this.filePath = filePath;
         }
 
-        public async Task<IReadOnlyCollection<string>> LoadAsync()
+        public async Task<IEnumerable<Ping>> LoadAsync()
         {
-            List<string> addresses = new List<string>();
+            List<Ping> addresses = new List<Ping>();
 
             try
             {
@@ -34,7 +36,9 @@ namespace Pingy
                     {
                         if (line.StartsWith("#") == false && line.Length > 0)
                         {
-                            addresses.Add(line);
+                            Ping ping = new Ping(line);
+
+                            addresses.Add(ping);
                         }
                     }
                 }
@@ -43,12 +47,12 @@ namespace Pingy
             {
                 addresses = null;
 
-                Utils.LogException(e, "file not found");
+                Utils.LogException(e, "addresses file not found");
             }
 
             return addresses != null
-                ? addresses.AsReadOnly()
-                : (IReadOnlyCollection<string>)Enumerable.Empty<string>();
+                ? addresses
+                : Enumerable.Empty<Ping>();
         }
     }
 }

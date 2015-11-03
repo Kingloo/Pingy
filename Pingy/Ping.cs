@@ -1,11 +1,12 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Pingy
 {
-    public class Ping : ViewModelBase
+    public class Ping : ViewModelBase, IEquatable<Ping>
     {
         public enum PingStatus
         {
@@ -168,6 +169,18 @@ namespace Pingy
                 {
                     Status = PingStatus.Failure;
                 }
+            }
+        }
+
+        public bool Equals(Ping other)
+        {
+            if (isIpAddress)
+            {
+                return ipAddress.Equals(other.ipAddress);
+            }
+            else
+            {
+                return hostName.Equals(other.hostName);
             }
         }
 

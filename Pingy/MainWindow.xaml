@@ -9,6 +9,10 @@
                     Command="{Binding Path=ExitCommand}" />
         <KeyBinding Key="F5"
                     Command="{Binding Path=PingAllAsyncCommand}" />
+        <KeyBinding Key="F11"
+                    Command="{Binding Path=OpenAddressesFileCommand}" />
+        <KeyBinding Key="F12"
+                    Command="{Binding Path=LoadAddressesAsyncCommand}" />
     </Window.InputBindings>
     
     <Window.Style>
