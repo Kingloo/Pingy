@@ -20,7 +20,6 @@
                 <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
             </Style>
 
-            <Style TargetType="{x:Type Grid}" BasedOn="{StaticResource {x:Type FrameworkElement}}" />
             <Style TargetType="{x:Type ItemsPresenter}" BasedOn="{StaticResource {x:Type FrameworkElement}}" />
             
             <Style TargetType="{x:Type VirtualizingStackPanel}" BasedOn="{StaticResource {x:Type FrameworkElement}}">

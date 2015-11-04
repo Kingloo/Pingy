@@ -174,8 +174,6 @@ namespace Pingy
         private async void mainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             await LoadAddressesAsync();
-
-            await PingAllAsync();
         }
 
         private void AddPings(IReadOnlyCollection<string> loaded)

@@ -24,65 +24,62 @@
             <Setter Property="ResizeMode" Value="CanMinimize" />
         </Style>
     </Window.Style>
-    
-    <Grid>
-        <ItemsControl ItemsSource="{Binding Path=Pings}">
 
-            <ItemsControl.Template>
-                <ControlTemplate>
-                    <ScrollViewer CanContentScroll="True">
-                        <ItemsPresenter Margin="10,0,10,0" />
-                    </ScrollViewer>
-                </ControlTemplate>
-            </ItemsControl.Template>
+    <ItemsControl ItemsSource="{Binding Path=Pings}"
+                  Margin="7,0,7,7">
+        <ItemsControl.Template>
+            <ControlTemplate>
+                <ScrollViewer CanContentScroll="True">
+                    <ItemsPresenter />
+                </ScrollViewer>
+            </ControlTemplate>
+        </ItemsControl.Template>
 
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <VirtualizingStackPanel Margin="0,5,0,5" />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            
-            <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="{x:Type this:Ping}">
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <VirtualizingStackPanel />
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
 
-                    <DataTemplate.Resources>
-                        <this:PingStatusToColourConverter x:Key="pingStatusToColourConverter"
-                                                          None="{StaticResource PingStatusNone}"
-                                                          Updating="{StaticResource PingStatusUpdating}"
-                                                          Success="{StaticResource PingStatusSuccess}"
-                                                          Failure="{StaticResource PingStatusFailure}"
-                                                          DnsResolutionError="{StaticResource PingStatusDnsResolutionError}" />
-                    </DataTemplate.Resources>
+        <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="{x:Type this:Ping}">
 
-                    <Grid Background="{Binding Path=Status, Converter={StaticResource pingStatusToColourConverter}}"
-                          Margin="0,5,0,5">
+                <DataTemplate.Resources>
+                    <this:PingStatusToColourConverter x:Key="pingStatusToColourConverter"
+                                                      None="{StaticResource PingStatusNone}"
+                                                      Updating="{StaticResource PingStatusUpdating}"
+                                                      Success="{StaticResource PingStatusSuccess}"
+                                                      Failure="{StaticResource PingStatusFailure}"
+                                                      DnsResolutionError="{StaticResource PingStatusDnsResolutionError}" />
+                </DataTemplate.Resources>
 
-                        <Grid.ToolTip>
-                            <Label Content="{Binding Path=Tooltip}"
-                                   Style="{StaticResource TooltipLabel}" />
-                        </Grid.ToolTip>
+                <Grid Background="{Binding Path=Status, Converter={StaticResource pingStatusToColourConverter}}"
+                      Margin="0,7,0,0">
 
-                        <Grid.InputBindings>
-                            <MouseBinding MouseAction="LeftDoubleClick"
-                                          Command="{Binding Path=DataContext.PingAsyncCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type this:MainWindow}}}"
-                                          CommandParameter="{Binding}" />
-                        </Grid.InputBindings>
+                    <Grid.ToolTip>
+                        <Label Content="{Binding Path=Tooltip}"
+                               Style="{StaticResource TooltipLabel}" />
+                    </Grid.ToolTip>
 
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="3*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+                    <Grid.InputBindings>
+                        <MouseBinding MouseAction="LeftDoubleClick"
+                                      Command="{Binding Path=DataContext.PingAsyncCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type this:MainWindow}}}"
+                                      CommandParameter="{Binding}" />
+                    </Grid.InputBindings>
 
-                        <Label Grid.Column="0"
-                               Content="{Binding Path=Address}" />
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
 
-                        <Label Grid.Column="1"
-                               Content="{Binding Path=RoundtripTime}" />
+                    <Label Grid.Column="0"
+                           Content="{Binding Path=Address}" />
 
-                    </Grid>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-            
-        </ItemsControl>
-    </Grid>
+                    <Label Grid.Column="1"
+                           Content="{Binding Path=RoundtripTime}" />
+
+                </Grid>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
 </Window>
