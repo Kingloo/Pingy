@@ -30,7 +30,7 @@ namespace Pingy
 
         public async Task PingAllAsync()
         {
-            if (this.Pings.Count > 0)
+            if (Pings.Count > 0)
             {
                 active = true;
 
@@ -174,16 +174,6 @@ namespace Pingy
         private async void mainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             await LoadAddressesAsync();
-        }
-
-        private void AddPings(IReadOnlyCollection<string> loaded)
-        {
-            foreach (string each in loaded)
-            {
-                Ping ping = new Ping(each);
-
-                Pings.Add(ping);
-            }
         }
 
         private async void updateTimer_Tick(object sender, EventArgs e)
