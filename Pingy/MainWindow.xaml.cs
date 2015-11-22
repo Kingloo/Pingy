@@ -24,7 +24,7 @@ namespace Pingy
             return maxHeight;
         }
 
-        private void Window_ContentRendered(object sender, EventArgs e)
+        private void Window_LayoutUpdated(object sender, EventArgs e)
         {
             Utils.SetWindowToMiddleOfScreen(this);
         }
