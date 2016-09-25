@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Pingy
@@ -8,7 +7,7 @@ namespace Pingy
     public interface IRepo
     {
         string FilePath { get; }
-        Task<IEnumerable<Ping>> LoadAsync();
+        Task<IReadOnlyList<Ping>> LoadAsync();
     }
 
     public class TxtRepo : IRepo
@@ -21,20 +20,32 @@ namespace Pingy
             this.filePath = filePath;
         }
 
-        public async Task<IEnumerable<Ping>> LoadAsync()
+        public async Task<IReadOnlyList<Ping>> LoadAsync()
         {
             List<Ping> addresses = new List<Ping>();
 
+            FileStream fsAsync = null;
+
             try
             {
-                using (FileStream fsAsync = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.None, 1024, true))
+                fsAsync = new FileStream(filePath,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.None,
+                    2048,
+                    true);
+                
                 using (StreamReader sr = new StreamReader(fsAsync))
                 {
+                    fsAsync = null;
+
                     string line = string.Empty;
 
                     while ((line = await sr.ReadLineAsync().ConfigureAwait(false)) != null)
                     {
-                        if (line.StartsWith("#") == false && line.Length > 0)
+                        if (line.StartsWith("#")) { continue; } // allows for comment lines
+
+                        if (line.Length > 0)
                         {
                             Ping ping = new Ping(line);
 
@@ -45,14 +56,10 @@ namespace Pingy
             }
             catch (FileNotFoundException e)
             {
-                addresses = null;
-
                 Utils.LogException(e, "addresses file not found");
             }
 
-            return addresses != null
-                ? addresses
-                : Enumerable.Empty<Ping>();
+            return addresses;
         }
     }
 }

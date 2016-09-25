@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -7,30 +8,42 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
-using Pingy.Extensions;
 
 namespace Pingy
 {
     public static class Utils
     {
-        private static int loggingRounds = 5;
-        private static string logFilePath = string.Format(@"C:\Users\{0}\Documents\logfile.txt", Environment.UserName);
-        
-        
-        public static void SetWindowToMiddleOfScreen(Window window)
-        {
-            double screenHeight = SystemParameters.PrimaryScreenHeight;
-            double windowHeight = window.Height;
-            window.Top = (screenHeight / 2) - (windowHeight / 2);
+        private static int rounds = 5;
+        private static string logFilePath = GetLogFilePath();
 
-            double screenWidth = SystemParameters.PrimaryScreenWidth;
-            double windowWidth = window.Width;
-            window.Left = (screenWidth / 2) - (windowWidth / 2);
+        private static string GetLogFilePath()
+        {
+            string dir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string filename = "logfile.txt";
+
+            return Path.Combine(dir, filename);
+        }
+        
+        
+        public static void SafeDispatcher(Action action)
+        {
+            if (action == null) { throw new ArgumentNullException(nameof(action)); }
+
+            Dispatcher disp = Application.Current.Dispatcher;
+
+            if (disp.CheckAccess())
+            {
+                action();
+            }
+            else
+            {
+                disp.Invoke(action, DispatcherPriority.Normal);
+            }
         }
 
-        public static void SafeDispatcher(Action action, DispatcherPriority priority = DispatcherPriority.Background)
+        public static void SafeDispatcher(Action action, DispatcherPriority priority)
         {
-            if (action == null) throw new ArgumentNullException("Utils.SafeDispatcher: action was null");
+            if (action == null) { throw new ArgumentNullException(nameof(action)); }
 
             Dispatcher disp = Application.Current.Dispatcher;
 
@@ -44,9 +57,25 @@ namespace Pingy
             }
         }
 
-        public static async Task SafeDispatcherAsync(Action action, DispatcherPriority priority = DispatcherPriority.Background)
+        public static async Task SafeDispatcherAsync(Action action)
         {
-            if (action == null) throw new ArgumentNullException("Utils.SafeDispatcherAsync: action was null");
+            if (action == null) { throw new ArgumentNullException(nameof(action)); }
+
+            Dispatcher disp = Application.Current.Dispatcher;
+
+            if (disp.CheckAccess())
+            {
+                await Task.Run(() => action);
+            }
+            else
+            {
+                await disp.InvokeAsync(action, DispatcherPriority.Normal);
+            }
+        }
+
+        public static async Task SafeDispatcherAsync(Action action, DispatcherPriority priority)
+        {
+            if (action == null) { throw new ArgumentNullException(nameof(action)); }
 
             Dispatcher disp = Application.Current.Dispatcher;
 
@@ -60,138 +89,171 @@ namespace Pingy
             }
         }
 
-
-        public static void OpenUriInBrowser(string uri)
-        {
-            Uri tmp = null;
-
-            if (Uri.TryCreate(uri, UriKind.Absolute, out tmp))
-            {
-                Process.Start(tmp.AbsoluteUri);
-            }
-            else
-            {
-                string errorMessage = string.Format("Uri.TryCreate returned false on {0}", uri);
-
-                Utils.LogMessage(errorMessage);
-            }
-        }
-
+        
         public static void OpenUriInBrowser(Uri uri)
         {
+            if (uri == null) { throw new ArgumentNullException(nameof(uri)); }
+
             if (uri.IsAbsoluteUri)
             {
                 Process.Start(uri.AbsoluteUri);
             }
             else
             {
-                string errorMessage = string.Format("Uri ({0}) was not absolute", uri.OriginalString);
+                string errorMessage = string.Format(CultureInfo.CurrentCulture, "Uri ({0}) was not absolute", uri.OriginalString);
 
-                Utils.LogMessage(errorMessage);
+                LogMessage(errorMessage);
+            }
+        }
+
+        public static void OpenUriInBrowser(string uri)
+        {
+            if (uri == null) { throw new ArgumentNullException(nameof(uri)); }
+
+            Uri tmp = null;
+            if (Uri.TryCreate(uri, UriKind.Absolute, out tmp))
+            {
+                OpenUriInBrowser(tmp);
+            }
+            else
+            {
+                string errorMessage = string.Format(CultureInfo.CurrentCulture, "Uri.TryCreate returned false on {0}", uri);
+
+                LogMessage(errorMessage);
             }
         }
 
 
         public static void LogMessage(string message)
         {
-            StringBuilder sb = new StringBuilder();
+            if (message == null) { throw new ArgumentNullException(nameof(message)); }
 
-            sb.AppendLine(string.Format("{0} logged the following message at {1}", Process.GetCurrentProcess().MainModule.ModuleName, DateTime.Now));
-            sb.AppendLine(message);
-            sb.AppendLine(string.Empty);
+            DateTime time = DateTime.Now;
+            string name = Process.GetCurrentProcess().MainModule.ModuleName;
 
-            WriteTextToFile(sb.ToString(), loggingRounds);
+            string log = string.Format(CultureInfo.CurrentCulture, "{0} - {1} - {2}", time, name, message);
+
+            WriteTextToFile(log, rounds);
         }
 
         public static async Task LogMessageAsync(string message)
         {
-            StringBuilder sb = new StringBuilder();
+            if (message == null) { throw new ArgumentNullException(nameof(message)); }
 
-            sb.AppendLine(string.Format("{0} logged the following message at {1}", Process.GetCurrentProcess().MainModule.ModuleName, DateTime.Now));
-            sb.AppendLine(message);
-            sb.AppendLine(string.Empty);
+            DateTime time = DateTime.Now;
+            string name = Process.GetCurrentProcess().MainModule.ModuleName;
 
-            await WriteTextToFileAsync(sb.ToString(), loggingRounds).ConfigureAwait(false);
+            string log = string.Format(CultureInfo.CurrentCulture, "{0} - {1} - {2}", time, name, message);
+            
+            await WriteTextToFileAsync(log, rounds).ConfigureAwait(false);
         }
 
 
-        public static void LogException(Exception e)
+        public static void LogException(Exception ex)
         {
+            if (ex == null) { throw new ArgumentNullException(nameof(ex)); }
+
             StringBuilder sb = new StringBuilder();
 
-            sb.AppendLine(string.Format("{0} occurred in {1} at {2}", e.GetType().ToString(), Process.GetCurrentProcess().MainModule.ModuleName, DateTime.Now));
-            sb.AppendLine(e.Message);
-            sb.AppendLine(e.StackTrace);
-            sb.AppendLine(string.Empty);
+            DateTime time = DateTime.Now;
+            string name = Process.GetCurrentProcess().MainModule.ModuleName;
+            string type = ex.GetType().ToString();
+            
+            string log = string.Format(CultureInfo.CurrentCulture, "{0} - {1} - {2}", time, name, type);
 
-            WriteTextToFile(sb.ToString(), loggingRounds);
+            sb.AppendLine(log);
+            sb.AppendLine(ex.Message);
+            sb.AppendLine(ex.StackTrace);
+            
+            WriteTextToFile(sb.ToString(), rounds);
         }
 
-        public static void LogException(Exception e, string message)
+        public static void LogException(Exception ex, string message)
         {
+            if (ex == null) { throw new ArgumentNullException(nameof(ex)); }
+            if (message == null) { throw new ArgumentNullException(nameof(message)); }
+
             StringBuilder sb = new StringBuilder();
 
-            sb.AppendLine(string.Format("{0} occurred in {1} at {2}", e.GetType().ToString(), Process.GetCurrentProcess().MainModule.ModuleName, DateTime.Now));
-            sb.AppendLine(message);
-            sb.AppendLine(e.Message);
-            sb.AppendLine(e.StackTrace);
-            sb.AppendLine(string.Empty);
+            DateTime time = DateTime.Now;
+            string name = Process.GetCurrentProcess().MainModule.ModuleName;
+            string type = ex.GetType().ToString();
 
-            WriteTextToFile(sb.ToString(), loggingRounds);
+            string log = string.Format(CultureInfo.CurrentCulture, "{0} - {1} - {2} - {3}", time, name, type, message);
+            
+            sb.AppendLine(log);
+            sb.AppendLine(ex.Message);
+            sb.AppendLine(ex.StackTrace);
+
+            WriteTextToFile(sb.ToString(), rounds);
         }
 
-        public static async Task LogExceptionAsync(Exception e)
+        public static async Task LogExceptionAsync(Exception ex)
         {
+            if (ex == null) { throw new ArgumentNullException(nameof(ex)); }
+
             StringBuilder sb = new StringBuilder();
 
-            sb.AppendLine(string.Format("{0} occurred in {1} at {2}", e.GetType().ToString(), Process.GetCurrentProcess().MainModule.ModuleName, DateTime.Now));
-            sb.AppendLine(e.Message);
-            sb.AppendLine(e.StackTrace);
-            sb.AppendLine(string.Empty);
+            DateTime time = DateTime.Now;
+            string name = Process.GetCurrentProcess().MainModule.ModuleName;
+            string type = ex.GetType().ToString();
 
-            await WriteTextToFileAsync(sb.ToString(), loggingRounds).ConfigureAwait(false);
+            string log = string.Format(CultureInfo.CurrentCulture, "{0} - {1} - {2}", time, name, type);
+
+            sb.AppendLine(log);
+            sb.AppendLine(ex.Message);
+            sb.AppendLine(ex.StackTrace);
+
+            await WriteTextToFileAsync(sb.ToString(), rounds).ConfigureAwait(false);
         }
 
-        public static async Task LogExceptionAsync(Exception e, string message)
+        public static async Task LogExceptionAsync(Exception ex, string message)
         {
+            if (ex == null) { throw new ArgumentNullException(nameof(ex)); }
+            if (message == null) { throw new ArgumentNullException(nameof(message)); }
+
             StringBuilder sb = new StringBuilder();
 
-            sb.AppendLine(string.Format("{0} occurred in {1} at {2}", e.GetType().ToString(), Process.GetCurrentProcess().MainModule.ModuleName, DateTime.Now));
-            sb.AppendLine(message);
-            sb.AppendLine(e.Message);
-            sb.AppendLine(e.StackTrace);
-            sb.AppendLine(string.Empty);
+            DateTime time = DateTime.Now;
+            string name = Process.GetCurrentProcess().MainModule.ModuleName;
+            string type = ex.GetType().ToString();
 
-            await WriteTextToFileAsync(sb.ToString(), loggingRounds).ConfigureAwait(false);
+            string log = string.Format(CultureInfo.CurrentCulture, "{0} - {1} - {2} - {3}", time, name, type, message);
+
+            sb.AppendLine(log);
+            sb.AppendLine(ex.Message);
+            sb.AppendLine(ex.StackTrace);
+
+            await WriteTextToFileAsync(sb.ToString(), rounds).ConfigureAwait(false);
         }
 
 
         private static void WriteTextToFile(string text, int rounds = 1)
         {
-            if (rounds < 1) throw new ArgumentException("WriteTextToFile: rounds cannot be < 1");
+            if (text == null) { throw new ArgumentNullException(nameof(text)); }
+            if (rounds < 1) { throw new ArgumentException("WriteTextToFile: rounds cannot be < 1"); }
 
             bool tryAgain = false;
-
+            
             FileStream fs = null;
-
             try
             {
-                using (fs = new FileStream(logFilePath, FileMode.Append, FileAccess.Write, FileShare.None, 1024, false))
+                fs = new FileStream(logFilePath, FileMode.Append, FileAccess.Write, FileShare.None, 1024, false);
+
+                using (StreamWriter sw = new StreamWriter(fs))
                 {
-                    using (StreamWriter sw = new StreamWriter(fs))
-                    {
-                        sw.Write(text);
-                    }
+                    fs = null;
+
+                    sw.WriteLine(text);
                 }
             }
             catch (IOException)
             {
-                if (fs != null)
-				{
-					fs.Close();
-				}
-				
-				tryAgain = (rounds > 1);
+                tryAgain = (rounds > 1);
+            }
+            finally
+            {
+                fs?.Dispose();
             }
 
             if (tryAgain)
@@ -218,30 +280,30 @@ namespace Pingy
 
         private static async Task WriteTextToFileAsync(string text, int rounds = 1)
         {
-            if (rounds < 1) throw new ArgumentException("WriteTextToFileAsync: rounds cannot be < 1");
+            if (text == null) { throw new ArgumentNullException(nameof(text)); }
+            if (rounds < 1) { throw new ArgumentException("WriteTextToFileAsync: rounds cannot be < 1"); }
 
             bool tryAgain = false;
-
+            
             FileStream fsAsync = null;
-
             try
             {
-                using (fsAsync = new FileStream(logFilePath, FileMode.Append, FileAccess.Write, FileShare.None, 1024, true))
+                fsAsync = new FileStream(logFilePath, FileMode.Append, FileAccess.Write, FileShare.None, 1024, true);
+
+                using (StreamWriter sw = new StreamWriter(fsAsync))
                 {
-                    using (StreamWriter sw = new StreamWriter(fsAsync))
-                    {
-                        await sw.WriteAsync(text).ConfigureAwait(false);
-                    }
+                    fsAsync = null;
+
+                    await sw.WriteLineAsync(text).ConfigureAwait(false);
                 }
             }
             catch (IOException)
             {
-                if (fsAsync != null)
-				{
-					fsAsync.Close();
-				}
-				
-				tryAgain = (rounds > 1);
+                tryAgain = (rounds > 1);
+            }
+            finally
+            {
+                fsAsync?.Dispose();
             }
 
             if (tryAgain)
@@ -267,22 +329,17 @@ namespace Pingy
         }
 
 
-        public static string DownloadWebsiteAsString(HttpWebRequest req)
+        public static string DownloadWebsiteAsString(HttpWebRequest request)
         {
-            StringBuilder sbLog = new StringBuilder();
+            if (request == null) { throw new ArgumentNullException(nameof(request)); }
 
             string response = string.Empty;
 
-            using (HttpWebResponse resp = (HttpWebResponse)req.GetResponseExt())
+            using (HttpWebResponse resp = (HttpWebResponse)request.GetResponseExt())
             {
                 if (resp == null)
                 {
-                    if (req != null)
-                    {
-                        sbLog.AppendLine(string.Format("Request for {0} was aborted", req.RequestUri.AbsoluteUri));
-
-                        req.Abort();
-                    }
+                    request?.Abort();
                 }
                 else
                 {
@@ -294,47 +351,33 @@ namespace Pingy
                             {
                                 response = sr.ReadToEnd();
                             }
-                            catch (IOException e)
+                            catch (Exception e)
                             {
-                                sbLog.AppendLine("Reading the response failed with IOException");
-                                sbLog.AppendLine(e.Message);
-                                sbLog.AppendLine(e.StackTrace);
+                                string message = string.Format(CultureInfo.CurrentCulture, "Requesting {0} failed with code {1}", request.RequestUri.AbsoluteUri, resp.StatusCode.ToString());
+
+                                LogException(e, message);
 
                                 response = string.Empty;
                             }
                         }
                     }
-                    else
-                    {
-                        sbLog.AppendLine(string.Format("Getting website {0} failed: {1}", req.RequestUri.AbsoluteUri, resp.StatusCode.ToString()));
-                    }
                 }
             }
-
-            if (sbLog.Length > 0)
-            {
-                Utils.LogMessage(sbLog.ToString());
-            }
-
+            
             return response;
         }
 
-        public static async Task<string> DownloadWebsiteAsStringAsync(HttpWebRequest req)
+        public static async Task<string> DownloadWebsiteAsStringAsync(HttpWebRequest request)
         {
-            StringBuilder sbLog = new StringBuilder();
+            if (request == null) { throw new ArgumentNullException(nameof(request)); }
 
             string response = string.Empty;
 
-            using (HttpWebResponse resp = (HttpWebResponse)(await req.GetResponseAsyncExt().ConfigureAwait(false)))
+            using (HttpWebResponse resp = (HttpWebResponse)(await request.GetResponseAsyncExt().ConfigureAwait(false)))
             {
                 if (resp == null)
                 {
-                    if (req != null)
-                    {
-                        sbLog.AppendLine(string.Format("Request for {0} was aborted", req.RequestUri.AbsoluteUri));
-
-                        req.Abort();
-                    }
+                    request?.Abort();
                 }
                 else
                 {
@@ -346,28 +389,19 @@ namespace Pingy
                             {
                                 response = await sr.ReadToEndAsync().ConfigureAwait(false);
                             }
-                            catch (IOException e)
+                            catch (Exception e)
                             {
-                                sbLog.AppendLine("Reading the response failed with IOException");
-                                sbLog.AppendLine(e.Message);
-                                sbLog.AppendLine(e.StackTrace);
+                                string message = string.Format(CultureInfo.CurrentCulture, "Requesting {0} failed with code {1}", request.RequestUri.AbsoluteUri, resp.StatusCode.ToString());
 
+                                LogException(e, message);
+                                
                                 response = string.Empty;
                             }
                         }
                     }
-                    else
-                    {
-                        sbLog.AppendLine(string.Format("Getting website {0} failed: {1}", req.RequestUri.AbsoluteUri, resp.StatusCode.ToString()));
-                    }
                 }
             }
-
-            if (sbLog.Length > 0)
-            {
-                await Utils.LogMessageAsync(sbLog.ToString()).ConfigureAwait(false);
-            }
-
+            
             return response;
         }
     }

@@ -1,22 +1,21 @@
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using System.ComponentModel;
 
 namespace Pingy
 {
     public class ViewModelBase : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-
-        protected void OnPropertyChanged([CallerMemberName]string propertyName = default(string))
+        
+        protected void RaisePropertyChanged(string propertyName)
         {
-            PropertyChangedEventHandler pceh = this.PropertyChanged;
+            PropertyChangedEventArgs args = new PropertyChangedEventArgs(propertyName);
 
-            if (pceh != null)
-            {
-                PropertyChangedEventArgs args = new PropertyChangedEventArgs(propertyName);
+            OnPropertyChanged(args);
+        }
 
-                pceh(this, args);
-            }
+        protected virtual void OnPropertyChanged(PropertyChangedEventArgs args)
+        {
+            PropertyChanged?.Invoke(this, args);
         }
     }
 }

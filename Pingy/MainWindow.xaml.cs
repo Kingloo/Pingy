@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using Pingy.Extensions;
 
 namespace Pingy
 {
@@ -16,7 +17,7 @@ namespace Pingy
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
         }
 
-        private double CalculateMaxHeight()
+        private static double CalculateMaxHeight()
         {
             double screenHeight = SystemParameters.WorkArea.Bottom;
             double maxHeight = screenHeight - 150;
@@ -26,7 +27,7 @@ namespace Pingy
 
         private void Window_LayoutUpdated(object sender, EventArgs e)
         {
-            Utils.SetWindowToMiddleOfScreen(this);
+            this.SetToMiddleOfScreen();
         }
     }
 }

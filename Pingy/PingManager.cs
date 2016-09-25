@@ -106,11 +106,11 @@ namespace Pingy
 
         private async Task LoadAddressesAsync()
         {
-            Pings.Clear();
+            _pings.Clear();
 
             IEnumerable<Ping> loaded = await (App.Current as App).Repo.LoadAsync();
-
-            Pings.AddList<Ping>(loaded);
+            
+            _pings.AddRange(loaded);
 
             await PingAllAsync();
         }
@@ -160,7 +160,7 @@ namespace Pingy
 
         #region Properties
         private ObservableCollection<Ping> _pings = new ObservableCollection<Ping>();
-        public ObservableCollection<Ping> Pings { get { return _pings; } }
+        public IReadOnlyCollection<Ping> Pings { get { return _pings; } }
         #endregion
 
         public PingManager(MainWindow mainWindow)

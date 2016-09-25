@@ -1,15 +1,17 @@
 ﻿using System;
+using System.Globalization;
+using System.IO;
 
 namespace Pingy
 {
-    public class Program
+    public static class Program
     {
-        private static readonly string addressesFilePath = string.Format(@"C:\Users\{0}\Documents\PingyAddresses.txt", Environment.UserName);
-
         [STAThread]
         public static int Main()
         {
-            TxtRepo repo = new TxtRepo(addressesFilePath);
+            string filePath = GetAddressesFilePath();
+
+            TxtRepo repo = new TxtRepo(filePath);
 
             App app = new App(repo);
             app.InitializeComponent();
@@ -18,12 +20,20 @@ namespace Pingy
 
             if (exitCode != 0)
             {
-                string errorMessage = string.Format("exited with code: {0}", exitCode);
+                string errorMessage = string.Format(CultureInfo.CurrentCulture, "exited with code: {0}", exitCode);
 
                 Utils.LogMessage(errorMessage);
             }
 
             return exitCode;
+        }
+
+        private static string GetAddressesFilePath()
+        {
+            string dir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string filename = "PingyAddresses.txt";
+
+            return Path.Combine(dir, filename);
         }
     }
 }

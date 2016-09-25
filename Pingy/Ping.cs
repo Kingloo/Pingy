@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -46,7 +47,7 @@ namespace Pingy
             {
                 if (Status == PingStatus.Success)
                 {
-                    return string.Format("{0} in {1} ms", Status.ToString(), RoundtripTime.ToString());
+                    return string.Format(CultureInfo.CurrentCulture, "{0} in {1} ms", Status.ToString(), RoundtripTime.ToString());
                 }
                 else
                 {
@@ -64,10 +65,13 @@ namespace Pingy
             }
             set
             {
-                _status = value;
+                if (_status != value)
+                {
+                    _status = value;
 
-                OnPropertyChanged();
-                OnPropertyChanged("Tooltip");
+                    RaisePropertyChanged(nameof(Status));
+                    RaisePropertyChanged(nameof(Tooltip));
+                }
             }
         }
 
@@ -80,9 +84,12 @@ namespace Pingy
             }
             set
             {
-                _roundtripTime = value;
+                if (_roundtripTime != value)
+                {
+                    _roundtripTime = value;
 
-                OnPropertyChanged();
+                    RaisePropertyChanged(nameof(RoundtripTime));
+                }
             }
         }
         #endregion
@@ -91,11 +98,11 @@ namespace Pingy
         {
             if (IPAddress.TryParse(address, out ipAddress))
             {
-                this.isIpAddress = true;
+                isIpAddress = true;
             }
             else
             {
-                this.hostName = address;
+                hostName = address;
             }
         }
 
@@ -121,14 +128,14 @@ namespace Pingy
             ParsePingReply(reply);
         }
 
-        private async Task<System.Net.NetworkInformation.PingReply> PingIpAddress(IPAddress ipAddress)
+        private static async Task<System.Net.NetworkInformation.PingReply> PingIpAddress(IPAddress ipAddress)
         {
             System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
 
             return await ping.SendPingAsync(ipAddress, timeout).ConfigureAwait(false);
         }
 
-        private async Task<bool> TryResolveHostName(string hostName)
+        private static async Task<bool> TryResolveHostName(string hostName)
         {
             IPAddress[] ipAddresses = null;
 
@@ -144,7 +151,7 @@ namespace Pingy
             return (ipAddresses.Length > 0);
         }
 
-        private async Task<System.Net.NetworkInformation.PingReply> PingHostName(string hostName)
+        private static async Task<System.Net.NetworkInformation.PingReply> PingHostName(string hostName)
         {
             System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
 
@@ -174,6 +181,8 @@ namespace Pingy
 
         public bool Equals(Ping other)
         {
+            if (other == null) { return false; }
+
             if (isIpAddress)
             {
                 return ipAddress.Equals(other.ipAddress);
