@@ -58,6 +58,10 @@ namespace Pingy
             {
                 Utils.LogException(e, "addresses file not found");
             }
+            finally
+            {
+                fsAsync?.Dispose();
+            }
 
             return addresses;
         }
