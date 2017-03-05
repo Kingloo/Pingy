@@ -13,6 +13,8 @@ namespace Pingy
         public MainWindow()
         {
             InitializeComponent();
+
+            WindowStartupLocation = WindowStartupLocation.CenterScreen;
             
             SourceInitialized += (s, e) => windowHandle = new WindowInteropHelper(this).EnsureHandle();
             ContentRendered += (s, e) => this.SetToMiddleOfScreen(Screen.FromHandle(windowHandle));
