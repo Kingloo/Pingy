@@ -1,33 +1,32 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Forms;
+using System.Windows.Interop;
 using Pingy.Extensions;
 
 namespace Pingy
 {
     public partial class MainWindow : Window
     {
+        private IntPtr windowHandle = IntPtr.Zero;
+        
         public MainWindow()
         {
             InitializeComponent();
-
-            DataContext = new PingManager(this);
-
-            MaxHeight = CalculateMaxHeight();
-
-            WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            
+            SourceInitialized += (s, e) => windowHandle = new WindowInteropHelper(this).EnsureHandle();
+            ContentRendered += (s, e) => this.SetToMiddleOfScreen(Screen.FromHandle(windowHandle));
+            Loaded += async (s, e) => await vm.LoadAddressesAsync();
+            LocationChanged += (s, e) => CalculateMaxHeight();
         }
-
-        private static double CalculateMaxHeight()
+        
+        private void CalculateMaxHeight()
         {
-            double screenHeight = SystemParameters.WorkArea.Bottom;
-            double maxHeight = screenHeight - 150;
-
-            return maxHeight;
-        }
-
-        private void Window_LayoutUpdated(object sender, EventArgs e)
-        {
-            this.SetToMiddleOfScreen();
+            Screen currentMonitor = Screen.FromHandle(windowHandle);
+            
+            MaxHeight = currentMonitor == null
+                ? SystemParameters.WorkArea.Bottom - 100
+                : currentMonitor.WorkingArea.Bottom - 100;
         }
     }
 }

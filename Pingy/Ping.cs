@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -143,12 +144,14 @@ namespace Pingy
             {
                 ipAddresses = await Dns.GetHostAddressesAsync(hostName).ConfigureAwait(false);
             }
-            catch (SocketException)
+            catch (SocketException ex)
             {
+                Utils.LogException(ex);
+
                 return false;
             }
-
-            return (ipAddresses.Length > 0);
+            
+            return ipAddresses.Any();
         }
 
         private static async Task<System.Net.NetworkInformation.PingReply> PingHostName(string hostName)
@@ -182,22 +185,17 @@ namespace Pingy
         public bool Equals(Ping other)
         {
             if (other == null) { return false; }
-
-            if (isIpAddress)
-            {
-                return ipAddress.Equals(other.ipAddress);
-            }
-            else
-            {
-                return hostName.Equals(other.hostName);
-            }
+            
+            return isIpAddress
+                ? ipAddress.Equals(other.ipAddress)
+                : hostName.Equals(other.hostName);
         }
 
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
 
-            sb.AppendLine(this.GetType().ToString());
+            sb.AppendLine(GetType().Name);
             sb.AppendLine(hostName);
             sb.AppendLine(isIpAddress.ToString());
 

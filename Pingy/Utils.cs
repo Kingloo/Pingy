@@ -157,7 +157,7 @@ namespace Pingy
 
             DateTime time = DateTime.Now;
             string name = Process.GetCurrentProcess().MainModule.ModuleName;
-            string type = ex.GetType().ToString();
+            string type = ex.GetType().Name;
             
             string log = string.Format(CultureInfo.CurrentCulture, "{0} - {1} - {2}", time, name, type);
 
@@ -177,7 +177,7 @@ namespace Pingy
 
             DateTime time = DateTime.Now;
             string name = Process.GetCurrentProcess().MainModule.ModuleName;
-            string type = ex.GetType().ToString();
+            string type = ex.GetType().Name;
 
             string log = string.Format(CultureInfo.CurrentCulture, "{0} - {1} - {2} - {3}", time, name, type, message);
             
@@ -196,7 +196,7 @@ namespace Pingy
 
             DateTime time = DateTime.Now;
             string name = Process.GetCurrentProcess().MainModule.ModuleName;
-            string type = ex.GetType().ToString();
+            string type = ex.GetType().Name;
 
             string log = string.Format(CultureInfo.CurrentCulture, "{0} - {1} - {2}", time, name, type);
 
@@ -216,7 +216,7 @@ namespace Pingy
 
             DateTime time = DateTime.Now;
             string name = Process.GetCurrentProcess().MainModule.ModuleName;
-            string type = ex.GetType().ToString();
+            string type = ex.GetType().Name;
 
             string log = string.Format(CultureInfo.CurrentCulture, "{0} - {1} - {2} - {3}", time, name, type, message);
 
@@ -329,7 +329,7 @@ namespace Pingy
         }
 
 
-        public static string DownloadWebsiteAsString(HttpWebRequest request)
+        public static string DownloadWebsiteAsString(WebRequest request)
         {
             if (request == null) { throw new ArgumentNullException(nameof(request)); }
 
@@ -351,11 +351,11 @@ namespace Pingy
                             {
                                 response = sr.ReadToEnd();
                             }
-                            catch (Exception e)
+                            catch (Exception ex)
                             {
                                 string message = string.Format(CultureInfo.CurrentCulture, "Requesting {0} failed with code {1}", request.RequestUri.AbsoluteUri, resp.StatusCode.ToString());
 
-                                LogException(e, message);
+                                LogException(ex, message);
 
                                 response = string.Empty;
                             }
@@ -367,7 +367,7 @@ namespace Pingy
             return response;
         }
 
-        public static async Task<string> DownloadWebsiteAsStringAsync(HttpWebRequest request)
+        public static async Task<string> DownloadWebsiteAsStringAsync(WebRequest request)
         {
             if (request == null) { throw new ArgumentNullException(nameof(request)); }
 
@@ -389,11 +389,11 @@ namespace Pingy
                             {
                                 response = await sr.ReadToEndAsync().ConfigureAwait(false);
                             }
-                            catch (Exception e)
+                            catch (Exception ex)
                             {
                                 string message = string.Format(CultureInfo.CurrentCulture, "Requesting {0} failed with code {1}", request.RequestUri.AbsoluteUri, resp.StatusCode.ToString());
 
-                                LogException(e, message);
+                                LogException(ex, message);
                                 
                                 response = string.Empty;
                             }

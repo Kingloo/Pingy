@@ -11,8 +11,17 @@ using Pingy.Extensions;
 
 namespace Pingy
 {
-    class PingManager : ViewModelBase
+    public class PingManager : ViewModelBase
     {
+        #region Fields
+        private bool active = false;
+
+        private readonly DispatcherTimer updateTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(18d)
+        };
+        #endregion
+
         #region Commands
         private DelegateCommandAsync _pingAllAsyncCommand = null;
         public DelegateCommandAsync PingAllAsyncCommand
@@ -33,9 +42,9 @@ namespace Pingy
             if (Pings.Count > 0)
             {
                 active = true;
-
-                IEnumerable<Task> pingTasks = from each in Pings
-                                              select each.PingAsync();
+                
+                IEnumerable<Task> pingTasks = Pings
+                    .Select(x => x.PingAsync());
                 
                 await Task.WhenAll(pingTasks);
 
@@ -104,7 +113,7 @@ namespace Pingy
             }
         }
 
-        private async Task LoadAddressesAsync()
+        public async Task LoadAddressesAsync()
         {
             _pings.Clear();
 
@@ -129,53 +138,24 @@ namespace Pingy
             }
         }
 
-        private void Exit()
-        {
-            Application.Current.MainWindow.Close();
-        }
+        private void Exit() => Application.Current.MainWindow.Close();
 
-        private bool canExecute(object _)
-        {
-            return true;
-        }
+        private bool canExecute(object _) => true;
 
-        private bool canExecuteAsync(object _)
-        {
-            return !active;
-        }
+        private bool canExecuteAsync(object _) => !active;
         #endregion
-
-        #region Fields
-        private bool active = false;
-
-        //private readonly DispatcherTimer updateTimer = new DispatcherTimer
-        //{
-        //    Interval = new TimeSpan(0, 0, 18)
-        //};
-        private readonly DispatcherTimer updateTimer = new DispatcherTimer
-        {
-            Interval = TimeSpan.FromSeconds(18d)
-        };
-        #endregion
-
+        
         #region Properties
-        private ObservableCollection<Ping> _pings = new ObservableCollection<Ping>();
+        private readonly ObservableCollection<Ping> _pings = new ObservableCollection<Ping>();
         public IReadOnlyCollection<Ping> Pings { get { return _pings; } }
         #endregion
 
-        public PingManager(MainWindow mainWindow)
+        public PingManager()
         {
-            mainWindow.Loaded += mainWindow_Loaded;
-
             updateTimer.Tick += updateTimer_Tick;
             updateTimer.Start();
         }
-
-        private async void mainWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-            await LoadAddressesAsync();
-        }
-
+        
         private async void updateTimer_Tick(object sender, EventArgs e)
         {
             await PingAllAsync();
