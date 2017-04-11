@@ -12,13 +12,10 @@ namespace Pingy
 
     public class TxtRepo : IRepo
     {
-        private string filePath = string.Empty;
-        public string FilePath { get { return filePath; } }
+        private string _filePath = string.Empty;
+        public string FilePath => _filePath;
 
-        public TxtRepo(string filePath)
-        {
-            this.filePath = filePath;
-        }
+        public TxtRepo(string filePath) => _filePath = filePath;
 
         public async Task<IReadOnlyList<Ping>> LoadAsync()
         {
@@ -28,7 +25,7 @@ namespace Pingy
 
             try
             {
-                fsAsync = new FileStream(filePath,
+                fsAsync = new FileStream(_filePath,
                     FileMode.Open,
                     FileAccess.Read,
                     FileShare.None,
@@ -45,18 +42,16 @@ namespace Pingy
                     {
                         if (line.StartsWith("#")) { continue; } // allows for comment lines
 
-                        if (line.Length > 0)
+                        if (Ping.TryCreate(line, out Ping ping))
                         {
-                            Ping ping = new Ping(line);
-
                             addresses.Add(ping);
                         }
                     }
                 }
             }
-            catch (FileNotFoundException e)
+            catch (FileNotFoundException ex)
             {
-                Utils.LogException(e, "addresses file not found");
+                Utils.LogException(ex, "addresses file not found");
             }
             finally
             {

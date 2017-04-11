@@ -27,20 +27,7 @@ namespace Pingy
         #endregion
 
         #region Properties
-        public string Address
-        {
-            get
-            {
-                if (isIpAddress)
-                {
-                    return ipAddress.ToString();
-                }
-                else
-                {
-                    return hostName;
-                }
-            }
-        }
+        public string Address => isIpAddress ? ipAddress.ToString() : hostName;
 
         public string Tooltip
         {
@@ -48,7 +35,10 @@ namespace Pingy
             {
                 if (Status == PingStatus.Success)
                 {
-                    return string.Format(CultureInfo.CurrentCulture, "{0} in {1} ms", Status.ToString(), RoundtripTime.ToString());
+                    return string.Format(CultureInfo.CurrentCulture,
+                        "{0} in {1} ms",
+                        Status.ToString(),
+                        RoundtripTime.ToString());
                 }
                 else
                 {
@@ -95,16 +85,38 @@ namespace Pingy
         }
         #endregion
 
-        public Ping(string address)
+        private Ping(string address)
         {
-            if (IPAddress.TryParse(address, out ipAddress))
+            isIpAddress = false;
+
+            hostName = address;
+        }
+
+        private Ping(IPAddress ip)
+        {
+            isIpAddress = true;
+
+            ipAddress = ip;
+        }
+
+        public static bool TryCreate(string line, out Ping ping)
+        {
+            if (String.IsNullOrWhiteSpace(line))
             {
-                isIpAddress = true;
+                ping = null;
+                return false;
+            }
+
+            if (IPAddress.TryParse(line, out IPAddress ip))
+            {
+                ping = new Ping(ip);
             }
             else
             {
-                hostName = address;
+                ping = new Ping(line);
             }
+
+            return true;
         }
 
         public async Task PingAsync()
@@ -114,15 +126,18 @@ namespace Pingy
 
             if (isIpAddress)
             {
-                reply = await PingIpAddress(ipAddress).ConfigureAwait(false);
+                reply = await PingIpAddress(ipAddress)
+                    .ConfigureAwait(false);
             }
             else
             {
-                bool canResolveHostName = await TryResolveHostName(hostName).ConfigureAwait(false);
+                bool canResolveHostName = await TryResolveHostName(hostName)
+                    .ConfigureAwait(false);
 
                 if (canResolveHostName)
                 {
-                    reply = await PingHostName(hostName).ConfigureAwait(false);
+                    reply = await PingHostName(hostName)
+                        .ConfigureAwait(false);
                 }
             }
 
@@ -131,9 +146,10 @@ namespace Pingy
 
         private static async Task<System.Net.NetworkInformation.PingReply> PingIpAddress(IPAddress ipAddress)
         {
-            System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
+            var ping = new System.Net.NetworkInformation.Ping();
 
-            return await ping.SendPingAsync(ipAddress, timeout).ConfigureAwait(false);
+            return await ping.SendPingAsync(ipAddress, timeout)
+                .ConfigureAwait(false);
         }
 
         private static async Task<bool> TryResolveHostName(string hostName)
@@ -142,7 +158,8 @@ namespace Pingy
 
             try
             {
-                ipAddresses = await Dns.GetHostAddressesAsync(hostName).ConfigureAwait(false);
+                ipAddresses = await Dns.GetHostAddressesAsync(hostName)
+                    .ConfigureAwait(false);
             }
             catch (SocketException ex)
             {
@@ -156,9 +173,10 @@ namespace Pingy
 
         private static async Task<System.Net.NetworkInformation.PingReply> PingHostName(string hostName)
         {
-            System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
+            var ping = new System.Net.NetworkInformation.Ping();
 
-            return await ping.SendPingAsync(hostName, timeout).ConfigureAwait(false);
+            return await ping.SendPingAsync(hostName, timeout)
+                .ConfigureAwait(false);
         }
 
         private void ParsePingReply(System.Net.NetworkInformation.PingReply reply)
