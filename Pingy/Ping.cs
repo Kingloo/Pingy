@@ -126,8 +126,18 @@ namespace Pingy
 
             if (isIpAddress)
             {
-                reply = await PingIpAddress(ipAddress)
-                    .ConfigureAwait(false);
+                try
+                {
+                    reply = await PingIpAddress(ipAddress)
+                        .ConfigureAwait(false);
+                }
+                catch (System.Net.NetworkInformation.PingException ex)
+                {
+                    string message = $"{Address}: {ex.Message}";
+
+                    await Utils.LogMessageAsync(message)
+                        .ConfigureAwait(false);
+                }
             }
             else
             {
@@ -136,8 +146,18 @@ namespace Pingy
 
                 if (canResolveHostName)
                 {
-                    reply = await PingHostName(hostName)
-                        .ConfigureAwait(false);
+                    try
+                    {
+                        reply = await PingHostName(hostName)
+                            .ConfigureAwait(false);
+                    }
+                    catch (System.Net.NetworkInformation.PingException ex)
+                    {
+                        string message = $"{Address}: {ex.Message}";
+
+                        await Utils.LogMessageAsync(message)
+                            .ConfigureAwait(false);
+                    }
                 }
             }
 

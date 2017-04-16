@@ -30,7 +30,7 @@ namespace Pingy
             {
                 if (_pingAllAsyncCommand == null)
                 {
-                    _pingAllAsyncCommand = new DelegateCommandAsync(PingAllAsync, canExecuteAsync);
+                    _pingAllAsyncCommand = new DelegateCommandAsync(PingAllAsync, CanExecuteAsync);
                 }
 
                 return _pingAllAsyncCommand;
@@ -43,8 +43,7 @@ namespace Pingy
             {
                 active = true;
                 
-                IEnumerable<Task> pingTasks = Pings
-                    .Select(x => x.PingAsync());
+                var pingTasks = Pings.Select(x => x.PingAsync());
                 
                 await Task.WhenAll(pingTasks);
 
@@ -59,17 +58,14 @@ namespace Pingy
             {
                 if (_pingAsyncCommand == null)
                 {
-                    _pingAsyncCommand = new DelegateCommandAsync<Ping>(PingAsync, canExecuteAsync);
+                    _pingAsyncCommand = new DelegateCommandAsync<Ping>(PingAsync, CanExecuteAsync);
                 }
 
                 return _pingAsyncCommand;
             }
         }
 
-        public async Task PingAsync(Ping ping)
-        {
-            await ping.PingAsync();
-        }
+        public async Task PingAsync(Ping ping) => await ping.PingAsync();
 
         private DelegateCommand _openAddressesFileCommand = null;
         public DelegateCommand OpenAddressesFileCommand
@@ -78,7 +74,7 @@ namespace Pingy
             {
                 if (_openAddressesFileCommand == null)
                 {
-                    _openAddressesFileCommand = new DelegateCommand(OpenAddressesFile, canExecute);
+                    _openAddressesFileCommand = new DelegateCommand(OpenAddressesFile, CanExecute);
                 }
 
                 return _openAddressesFileCommand;
@@ -91,9 +87,9 @@ namespace Pingy
             {
                 Process.Start("notepad.exe", (App.Current as App).Repo.FilePath);
             }
-            catch (FileNotFoundException e)
+            catch (FileNotFoundException ex)
             {
-                Utils.LogException(e, "notepad.exe not found");
+                Utils.LogException(ex, "notepad.exe not found");
 
                 Process.Start((App.Current as App).Repo.FilePath);
             }
@@ -106,7 +102,7 @@ namespace Pingy
             {
                 if (_loadAddressesAsyncCommand == null)
                 {
-                    _loadAddressesAsyncCommand = new DelegateCommandAsync(LoadAddressesAsync, canExecuteAsync);
+                    _loadAddressesAsyncCommand = new DelegateCommandAsync(LoadAddressesAsync, CanExecuteAsync);
                 }
 
                 return _loadAddressesAsyncCommand;
@@ -131,7 +127,7 @@ namespace Pingy
             {
                 if (_exitCommand == null)
                 {
-                    _exitCommand = new DelegateCommand(Exit, canExecute);
+                    _exitCommand = new DelegateCommand(Exit, CanExecute);
                 }
 
                 return _exitCommand;
@@ -140,25 +136,24 @@ namespace Pingy
 
         private void Exit() => Application.Current.MainWindow.Close();
 
-        private bool canExecute(object _) => true;
+        private bool CanExecute(object _) => true;
 
-        private bool canExecuteAsync(object _) => !active;
+        private bool CanExecuteAsync(object _) => !active;
         #endregion
         
         #region Properties
-        private readonly ObservableCollection<Ping> _pings = new ObservableCollection<Ping>();
-        public IReadOnlyCollection<Ping> Pings { get { return _pings; } }
+        private readonly ObservableCollection<Ping> _pings
+            = new ObservableCollection<Ping>();
+        public IReadOnlyCollection<Ping> Pings => _pings;
         #endregion
 
         public PingManager()
         {
-            updateTimer.Tick += updateTimer_Tick;
+            updateTimer.Tick += UpdateTimer_Tick;
             updateTimer.Start();
         }
         
-        private async void updateTimer_Tick(object sender, EventArgs e)
-        {
-            await PingAllAsync();
-        }
+        private async void UpdateTimer_Tick(object sender, EventArgs e)
+            => await PingAllAsync();
     }
 }
