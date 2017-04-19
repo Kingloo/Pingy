@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Threading;
 
 namespace Pingy
 {
@@ -8,12 +9,12 @@ namespace Pingy
 
         public App(IRepo repo)
         {
-            this.Repo = repo;
+            Repo = repo;
         }
 
-        private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        private void Application_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
-            Utils.LogException(e.Exception);
+            Log.LogException(e.Exception);
         }
     }
 }

@@ -89,7 +89,7 @@ namespace Pingy
             }
             catch (FileNotFoundException ex)
             {
-                Utils.LogException(ex, "notepad.exe not found");
+                Log.LogException(ex, "notepad.exe not found");
 
                 Process.Start((App.Current as App).Repo.FilePath);
             }

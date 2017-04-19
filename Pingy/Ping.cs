@@ -135,7 +135,7 @@ namespace Pingy
                 {
                     string message = $"{Address}: {ex.Message}";
 
-                    await Utils.LogMessageAsync(message)
+                    await Log.LogMessageAsync(message)
                         .ConfigureAwait(false);
                 }
             }
@@ -155,7 +155,7 @@ namespace Pingy
                     {
                         string message = $"{Address}: {ex.Message}";
 
-                        await Utils.LogMessageAsync(message)
+                        await Log.LogMessageAsync(message)
                             .ConfigureAwait(false);
                     }
                 }
@@ -183,7 +183,7 @@ namespace Pingy
             }
             catch (SocketException ex)
             {
-                Utils.LogException(ex);
+                Log.LogException(ex);
 
                 return false;
             }

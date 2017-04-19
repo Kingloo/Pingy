@@ -51,7 +51,7 @@ namespace Pingy
             }
             catch (FileNotFoundException ex)
             {
-                Utils.LogException(ex, "addresses file not found");
+                Log.LogException(ex, "addresses file not found");
             }
             finally
             {

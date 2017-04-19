@@ -22,7 +22,7 @@ namespace Pingy
             {
                 string errorMessage = string.Format(CultureInfo.CurrentCulture, "exited with code: {0}", exitCode);
 
-                Utils.LogMessage(errorMessage);
+                Log.LogMessage(errorMessage);
             }
 
             return exitCode;

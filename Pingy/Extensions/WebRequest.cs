@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace Pingy
+namespace Pingy.Extensions
 {
     public static class WebRequestExt
     {
@@ -18,8 +18,6 @@ namespace Pingy
             }
             catch (WebException ex)
             {
-                Utils.LogException(ex, request.RequestUri.AbsoluteUri);
-
                 webResp = ex?.Response;
             }
 
@@ -38,8 +36,6 @@ namespace Pingy
             }
             catch (WebException ex)
             {
-                Utils.LogException(ex, request.RequestUri.AbsoluteUri);
-
                 webResp = ex?.Response;
             }
 
