@@ -23,7 +23,7 @@ namespace Pingy
         private bool isIpAddress = false;
         private IPAddress ipAddress = null;
         private string hostName = string.Empty;
-        private const int timeout = 1250;
+        private const int timeout = 1800;
         #endregion
 
         #region Properties
@@ -38,7 +38,7 @@ namespace Pingy
                     return string.Format(CultureInfo.CurrentCulture,
                         "{0} in {1} ms",
                         Status.ToString(),
-                        RoundtripTime.ToString());
+                        RoundtripTime.ToString(CultureInfo.CurrentCulture));
                 }
                 else
                 {
@@ -50,10 +50,7 @@ namespace Pingy
         private PingStatus _status = PingStatus.None;
         public PingStatus Status
         {
-            get
-            {
-                return _status;
-            }
+            get => _status;
             set
             {
                 if (_status != value)
@@ -69,10 +66,7 @@ namespace Pingy
         private long _roundtripTime = 0;
         public long RoundtripTime
         {
-            get
-            {
-                return _roundtripTime;
-            }
+            get => _roundtripTime;
             set
             {
                 if (_roundtripTime != value)
@@ -126,53 +120,69 @@ namespace Pingy
 
             if (isIpAddress)
             {
-                try
-                {
-                    reply = await PingIpAddress(ipAddress)
-                        .ConfigureAwait(false);
-                }
-                catch (System.Net.NetworkInformation.PingException ex)
-                {
-                    string message = $"{Address}: {ex.Message}";
-
-                    await Log.LogMessageAsync(message)
-                        .ConfigureAwait(false);
-                }
+                reply = await PingIpAddressAsync(ipAddress)
+                    .ConfigureAwait(false);
             }
             else
             {
-                bool canResolveHostName = await TryResolveHostName(hostName)
+                reply = await PingHostNameAsync(hostName)
                     .ConfigureAwait(false);
-
-                if (canResolveHostName)
-                {
-                    try
-                    {
-                        reply = await PingHostName(hostName)
-                            .ConfigureAwait(false);
-                    }
-                    catch (System.Net.NetworkInformation.PingException ex)
-                    {
-                        string message = $"{Address}: {ex.Message}";
-
-                        await Log.LogMessageAsync(message)
-                            .ConfigureAwait(false);
-                    }
-                }
             }
 
             ParsePingReply(reply);
         }
 
-        private static async Task<System.Net.NetworkInformation.PingReply> PingIpAddress(IPAddress ipAddress)
+        private static async Task<System.Net.NetworkInformation.PingReply> PingIpAddressAsync(IPAddress ipAddress)
         {
-            var ping = new System.Net.NetworkInformation.Ping();
+            System.Net.NetworkInformation.PingReply reply = null;
+            
+            try
+            {
+                var ping = new System.Net.NetworkInformation.Ping();
 
-            return await ping.SendPingAsync(ipAddress, timeout)
+                reply = await ping.SendPingAsync(ipAddress, timeout)
+                    .ConfigureAwait(false);
+            }
+            catch (System.Net.NetworkInformation.PingException ex)
+            {
+                string message = string.Format(CultureInfo.CurrentCulture, "{0}: {1}", ipAddress, ex.Message);
+
+                await Log.LogMessageAsync(message)
+                    .ConfigureAwait(false);
+            }
+
+            return reply;
+        }
+        
+        private static async Task<System.Net.NetworkInformation.PingReply> PingHostNameAsync(string hostName)
+        {
+            System.Net.NetworkInformation.PingReply reply = null;
+
+            bool canResolveHostName = await TryResolveHostNameAsync(hostName)
                 .ConfigureAwait(false);
+
+            if (canResolveHostName)
+            {
+                var ping = new System.Net.NetworkInformation.Ping();
+
+                try
+                {
+                    reply = await ping.SendPingAsync(hostName, timeout)
+                        .ConfigureAwait(false);
+                }
+                catch (System.Net.NetworkInformation.PingException ex)
+                {
+                    string message = string.Format(CultureInfo.CurrentCulture, "{0}: {1}", hostName, ex.Message);
+
+                    await Log.LogMessageAsync(message)
+                        .ConfigureAwait(false);
+                }
+            }
+
+            return reply;
         }
 
-        private static async Task<bool> TryResolveHostName(string hostName)
+        private static async Task<bool> TryResolveHostNameAsync(string hostName)
         {
             IPAddress[] ipAddresses = null;
 
@@ -183,20 +193,19 @@ namespace Pingy
             }
             catch (SocketException ex)
             {
-                Log.LogException(ex);
+                string errorMessage = string.Format(
+                    CultureInfo.CurrentCulture,
+                    "{0} couldn't be resolved: {1}",
+                    hostName,
+                    ex.SocketErrorCode.ToString());
+
+                await Log.LogMessageAsync(errorMessage)
+                    .ConfigureAwait(false);
 
                 return false;
             }
-            
+
             return ipAddresses.Any();
-        }
-
-        private static async Task<System.Net.NetworkInformation.PingReply> PingHostName(string hostName)
-        {
-            var ping = new System.Net.NetworkInformation.Ping();
-
-            return await ping.SendPingAsync(hostName, timeout)
-                .ConfigureAwait(false);
         }
 
         private void ParsePingReply(System.Net.NetworkInformation.PingReply reply)
@@ -242,7 +251,7 @@ namespace Pingy
                 sb.AppendLine(ipAddress.ToString());
             }
 
-            sb.AppendLine(timeout.ToString());
+            sb.AppendLine(timeout.ToString(CultureInfo.CurrentCulture));
 
             return sb.ToString();
         }

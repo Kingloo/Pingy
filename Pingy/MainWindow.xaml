@@ -8,8 +8,6 @@
     </Window.DataContext>
 
     <Window.InputBindings>
-        <KeyBinding Key="Escape"
-                    Command="{Binding Path=ExitCommand}" />
         <KeyBinding Key="F5"
                     Command="{Binding Path=PingAllAsyncCommand}" />
         <KeyBinding Key="F11"

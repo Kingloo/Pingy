@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Threading;
 using Pingy.Extensions;
 
@@ -119,23 +118,7 @@ namespace Pingy
 
             await PingAllAsync();
         }
-
-        private DelegateCommand _exitCommand = null;
-        public DelegateCommand ExitCommand
-        {
-            get
-            {
-                if (_exitCommand == null)
-                {
-                    _exitCommand = new DelegateCommand(Exit, CanExecute);
-                }
-
-                return _exitCommand;
-            }
-        }
-
-        private void Exit() => Application.Current.MainWindow.Close();
-
+        
         private bool CanExecute(object _) => true;
 
         private bool CanExecuteAsync(object _) => !active;

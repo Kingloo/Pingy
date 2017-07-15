@@ -11,10 +11,9 @@ namespace Pingy
         {
             string filePath = GetAddressesFilePath();
 
-            TxtRepo repo = new TxtRepo(filePath);
+            var repo = new TxtRepo(filePath);
 
-            App app = new App(repo);
-            app.InitializeComponent();
+            var app = new App(repo);
 
             int exitCode = app.Run();
 

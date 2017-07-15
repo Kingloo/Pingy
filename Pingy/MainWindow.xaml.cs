@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows;
-using System.Windows.Forms;
+using System.Windows.Input;
 using System.Windows.Interop;
 using Pingy.Extensions;
 
@@ -17,14 +17,23 @@ namespace Pingy
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
             
             SourceInitialized += (s, e) => windowHandle = new WindowInteropHelper(this).EnsureHandle();
-            ContentRendered += (s, e) => this.SetToMiddleOfScreen(Screen.FromHandle(windowHandle));
+            ContentRendered += (s, e) => this.SetToMiddleOfScreen(System.Windows.Forms.Screen.FromHandle(windowHandle));
             Loaded += async (s, e) => await vm.LoadAddressesAsync();
             LocationChanged += (s, e) => CalculateMaxHeight();
+            KeyUp += MainWindow_KeyUp;
         }
-        
+
+        private void MainWindow_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+            {
+                Close();
+            }
+        }
+
         private void CalculateMaxHeight()
         {
-            Screen currentMonitor = Screen.FromHandle(windowHandle);
+            var currentMonitor = System.Windows.Forms.Screen.FromHandle(windowHandle);
             
             MaxHeight = currentMonitor == null
                 ? SystemParameters.WorkArea.Bottom - 100

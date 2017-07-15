@@ -9,6 +9,8 @@ namespace Pingy
 
         public App(IRepo repo)
         {
+            InitializeComponent();
+
             Repo = repo;
         }
 
