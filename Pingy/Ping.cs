@@ -120,13 +120,11 @@ namespace Pingy
 
             if (isIpAddress)
             {
-                reply = await PingIpAddressAsync(ipAddress)
-                    .ConfigureAwait(false);
+                reply = await PingIpAddressAsync(ipAddress).ConfigureAwait(false);
             }
             else
             {
-                reply = await PingHostNameAsync(hostName)
-                    .ConfigureAwait(false);
+                reply = await PingHostNameAsync(hostName).ConfigureAwait(false);
             }
 
             ParsePingReply(reply);
@@ -140,15 +138,13 @@ namespace Pingy
             {
                 var ping = new System.Net.NetworkInformation.Ping();
 
-                reply = await ping.SendPingAsync(ipAddress, timeout)
-                    .ConfigureAwait(false);
+                reply = await ping.SendPingAsync(ipAddress, timeout).ConfigureAwait(false);
             }
             catch (System.Net.NetworkInformation.PingException ex)
             {
                 string message = string.Format(CultureInfo.CurrentCulture, "{0}: {1}", ipAddress, ex.Message);
 
-                await Log.LogMessageAsync(message)
-                    .ConfigureAwait(false);
+                await Log.LogMessageAsync(message).ConfigureAwait(false);
             }
 
             return reply;
@@ -158,8 +154,7 @@ namespace Pingy
         {
             System.Net.NetworkInformation.PingReply reply = null;
 
-            bool canResolveHostName = await TryResolveHostNameAsync(hostName)
-                .ConfigureAwait(false);
+            bool canResolveHostName = await TryResolveHostNameAsync(hostName).ConfigureAwait(false);
 
             if (canResolveHostName)
             {
@@ -167,15 +162,13 @@ namespace Pingy
 
                 try
                 {
-                    reply = await ping.SendPingAsync(hostName, timeout)
-                        .ConfigureAwait(false);
+                    reply = await ping.SendPingAsync(hostName, timeout).ConfigureAwait(false);
                 }
                 catch (System.Net.NetworkInformation.PingException ex)
                 {
                     string message = string.Format(CultureInfo.CurrentCulture, "{0}: {1}", hostName, ex.Message);
 
-                    await Log.LogMessageAsync(message)
-                        .ConfigureAwait(false);
+                    await Log.LogMessageAsync(message).ConfigureAwait(false);
                 }
             }
 
@@ -188,8 +181,7 @@ namespace Pingy
 
             try
             {
-                ipAddresses = await Dns.GetHostAddressesAsync(hostName)
-                    .ConfigureAwait(false);
+                ipAddresses = await Dns.GetHostAddressesAsync(hostName).ConfigureAwait(false);
             }
             catch (SocketException ex)
             {

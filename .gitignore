@@ -177,3 +177,4 @@ FakesAssemblies/
 ## My own customizations of GitHub default VisualStudio
 Service References/
 BuildProcessTemplates/
+.vs

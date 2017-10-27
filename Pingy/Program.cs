@@ -30,7 +30,12 @@ namespace Pingy
         private static string GetAddressesFilePath()
         {
             string dir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+#if DEBUG
+            string filename = "PingyAddresses-test.txt";
+#else
             string filename = "PingyAddresses.txt";
+#endif
 
             return Path.Combine(dir, filename);
         }
