@@ -37,6 +37,47 @@ namespace Pingy
         }
 
 
+        public static void LogException(Exception ex)
+            => LogException(ex, string.Empty, false);
+
+        public static void LogException(Exception ex, string message)
+            => LogException(ex, message, false);
+
+        public static void LogException(Exception ex, bool includeStackTrace)
+            => LogException(ex, string.Empty, includeStackTrace);
+
+        public static void LogException(Exception ex, string message, bool includeStackTrace)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            if (String.IsNullOrWhiteSpace(message))
+            {
+                sb.AppendLine(
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        "{0} - {1}",
+                        ex.GetType().FullName,
+                        ex.Message));
+            }
+            else
+            {
+                sb.AppendLine(
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        "{0} - {1} - {2}",
+                        ex.GetType().FullName,
+                        ex.Message,
+                        message));
+            }
+
+            if (includeStackTrace)
+            {
+                sb.AppendLine(ex.StackTrace);
+            }
+
+            LogMessage(sb.ToString());
+        }
+
         public static async Task LogExceptionAsync(Exception ex)
             => await LogExceptionAsync(ex, string.Empty, false).ConfigureAwait(false);
 
@@ -93,6 +134,8 @@ namespace Pingy
 
                 using (StreamWriter sw = new StreamWriter(fs))
                 {
+                    fs = null;
+
                     sw.WriteLine(text);
                 }
             }
@@ -120,6 +163,8 @@ namespace Pingy
 
                 using (StreamWriter sw = new StreamWriter(fsAsync))
                 {
+                    fsAsync = null;
+
                     await sw.WriteLineAsync(text).ConfigureAwait(false);
                 }
             }

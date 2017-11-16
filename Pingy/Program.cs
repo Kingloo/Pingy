@@ -16,17 +16,30 @@ namespace Pingy
         [STAThread]
         public static int Main()
         {
-            FileInfo file = GetAddressesFile();
-            
+            FileInfo file = null;
+
+            try
+            {
+                file = GetAddressesFile();
+            }
+            catch (DirectoryNotFoundException ex)
+            {
+                string errorMessage = string.Format(CultureInfo.CurrentCulture, "Pingy exited with code: {0}", -1);
+
+                Log.LogException(ex, errorMessage);
+
+                return -1;
+            }
+
             App app = new App(file);
 
             int exitCode = app.Run();
-
+            
             if (exitCode != 0)
             {
-                string message = string.Format(CultureInfo.CurrentCulture, "", exitCode);
+                string errorMessage = string.Format(CultureInfo.CurrentCulture, "Pingy exited with code: {0}", exitCode);
 
-                Log.LogMessage(message);
+                Log.LogMessage(errorMessage);
             }
             
             return exitCode;
@@ -36,14 +49,25 @@ namespace Pingy
         {
             if (!Directory.Exists(directory))
             {
-                throw new DirectoryNotFoundException(string.Format(CultureInfo.CurrentCulture, "directory doesn't exist: {0}", directory));
+                throw new DirectoryNotFoundException(
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        "directory doesn't exist: {0}",
+                        directory));
             }
-
+            
             string fullPath = Path.Combine(directory, filename);
+            
+            return File.Exists(fullPath)
+                ? new FileInfo(fullPath)
+                : CreateFile(fullPath, "yahoo.com");
+        }
 
-            if (!File.Exists(fullPath))
+        private static FileInfo CreateFile(string fullPath, string defaultDomainName)
+        {
+            using (StreamWriter sw = File.CreateText(fullPath))
             {
-                throw new FileNotFoundException("file doesn't exist", fullPath);
+                sw.WriteLine(defaultDomainName);
             }
 
             return new FileInfo(fullPath);
