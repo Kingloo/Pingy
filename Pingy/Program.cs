@@ -6,38 +6,47 @@ namespace Pingy
 {
     public static class Program
     {
+#if DEBUG
+        private static string filename = "PingyAddresses-test.txt";
+#else
+        private static string filename = "PingyAddresses.txt";
+#endif
+        private static string directory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
         [STAThread]
         public static int Main()
         {
-            string filePath = GetAddressesFilePath();
-
-            var repo = new TxtRepo(filePath);
-
-            var app = new App(repo);
+            FileInfo file = GetAddressesFile();
+            
+            App app = new App(file);
 
             int exitCode = app.Run();
 
             if (exitCode != 0)
             {
-                string errorMessage = string.Format(CultureInfo.CurrentCulture, "exited with code: {0}", exitCode);
+                string message = string.Format(CultureInfo.CurrentCulture, "", exitCode);
 
-                Log.LogMessage(errorMessage);
+                Log.LogMessage(message);
             }
-
+            
             return exitCode;
         }
 
-        private static string GetAddressesFilePath()
+        private static FileInfo GetAddressesFile()
         {
-            string dir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            if (!Directory.Exists(directory))
+            {
+                throw new DirectoryNotFoundException(string.Format(CultureInfo.CurrentCulture, "directory doesn't exist: {0}", directory));
+            }
 
-#if DEBUG
-            string filename = "PingyAddresses-test.txt";
-#else
-            string filename = "PingyAddresses.txt";
-#endif
+            string fullPath = Path.Combine(directory, filename);
 
-            return Path.Combine(dir, filename);
+            if (!File.Exists(fullPath))
+            {
+                throw new FileNotFoundException("file doesn't exist", fullPath);
+            }
+
+            return new FileInfo(fullPath);
         }
     }
 }
