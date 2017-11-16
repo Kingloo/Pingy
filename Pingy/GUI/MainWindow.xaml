@@ -4,7 +4,8 @@
         xmlns:model="clr-namespace:Pingy.Model"
         Initialized="Window_Initialized"
         Loaded="Window_Loaded"
-        KeyUp="Window_KeyUp">
+        KeyUp="Window_KeyUp"
+        LocationChanged="Window_LocationChanged">
 
     <Window.DataContext>
         <model:PingManager x:Name="pingManager" />
@@ -17,7 +18,6 @@
             <Setter Property="SizeToContent" Value="WidthAndHeight" />
             <Setter Property="Top" Value="75" />
             <Setter Property="Left" Value="125" />
-            <Setter Property="MaxHeight" Value="1200" />
             <Setter Property="MinWidth" Value="450" />
             <Setter Property="ResizeMode" Value="CanMinimize" />
         </Style>

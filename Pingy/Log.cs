@@ -14,9 +14,22 @@ namespace Pingy
         private static FileInfo GetLogFile()
         {
             string directory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            string filename = "logfile.txt";
 
+            if (!Directory.Exists(directory))
+            {
+                throw new DirectoryNotFoundException(nameof(directory));
+            }
+
+            string filename = "logfile.txt";
+            
             string fullPath = Path.Combine(directory, filename);
+
+            return File.Exists(fullPath) ? new FileInfo(fullPath) : CreateLogFile(fullPath);
+        }
+
+        private static FileInfo CreateLogFile(string fullPath)
+        {
+            using (StreamWriter sw = File.CreateText(fullPath)) { }
 
             return new FileInfo(fullPath);
         }

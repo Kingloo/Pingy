@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using Pingy.Model;
 
 namespace Pingy.GUI
@@ -65,6 +66,19 @@ namespace Pingy.GUI
             IPingable pingable = (IPingable)((Grid)sender).DataContext;
 
             await pingable.PingAsync().ConfigureAwait(false);
+        }
+
+        private void Window_LocationChanged(object sender, EventArgs e)
+        {
+            IntPtr windowHandle = new WindowInteropHelper(this).EnsureHandle();
+
+            var currentMonitor = System.Windows.Forms.Screen.FromHandle(windowHandle);
+
+            double leeway = 150d;
+
+            MaxHeight = currentMonitor == null
+                ? SystemParameters.WorkArea.Bottom - leeway
+                : currentMonitor.WorkingArea.Bottom - leeway;
         }
     }
 }
