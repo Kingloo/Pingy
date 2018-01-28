@@ -4,7 +4,7 @@
         xmlns:model="clr-namespace:Pingy.Model"
         Initialized="Window_Initialized"
         Loaded="Window_Loaded"
-        KeyUp="Window_KeyUp"
+        KeyDown="Window_KeyDown"
         LocationChanged="Window_LocationChanged">
 
     <Window.DataContext>

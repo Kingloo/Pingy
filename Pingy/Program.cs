@@ -16,17 +16,13 @@ namespace Pingy
         [STAThread]
         public static int Main()
         {
-            FileInfo file = null;
+            FileInfo file = GetAddressesFile(directory, filename);
 
-            try
+            if (file == null)
             {
-                file = GetAddressesFile();
-            }
-            catch (DirectoryNotFoundException ex)
-            {
-                string errorMessage = string.Format(CultureInfo.CurrentCulture, "Pingy exited with code: {0}", -1);
+                string errorMessage = string.Format(CultureInfo.CurrentCulture, "exited: either directory ({0}) doesn't exist, or the file ({1}) couldn't be created", directory, filename);
 
-                Log.LogException(ex, errorMessage);
+                Log.LogMessage(errorMessage);
 
                 return -1;
             }
@@ -45,31 +41,30 @@ namespace Pingy
             return exitCode;
         }
 
-        private static FileInfo GetAddressesFile()
+        private static FileInfo GetAddressesFile(string directory, string filename)
         {
             if (!Directory.Exists(directory))
             {
-                throw new DirectoryNotFoundException(
-                    string.Format(
-                        CultureInfo.CurrentCulture,
-                        "directory doesn't exist: {0}",
-                        directory));
+                return null;
             }
-            
+
             string fullPath = Path.Combine(directory, filename);
-            
-            return File.Exists(fullPath)
-                ? new FileInfo(fullPath)
-                : CreateFile(fullPath, "yahoo.com");
-        }
 
-        private static FileInfo CreateFile(string fullPath, string defaultDomainName)
-        {
-            using (StreamWriter sw = File.CreateText(fullPath))
+            if (!File.Exists(fullPath))
             {
-                sw.WriteLine(defaultDomainName);
+                try
+                {
+                    using (StreamWriter sw = File.CreateText(fullPath))
+                    {
+                        sw.WriteLine("yahoo.com"); // unimportant default
+                    }
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    return null;
+                }
             }
-
+            
             return new FileInfo(fullPath);
         }
     }

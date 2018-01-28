@@ -35,7 +35,7 @@ namespace Pingy.GUI
             await pingManager.PingAllAsync();
         }
 
-        private async void Window_KeyUp(object sender, KeyEventArgs e)
+        private async void Window_KeyDown(object sender, KeyEventArgs e)
         {
             switch (e.Key)
             {
@@ -63,7 +63,7 @@ namespace Pingy.GUI
 
         private async void Grid_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
-            IPingable pingable = (IPingable)((Grid)sender).DataContext;
+            var pingable = (IPingable)((Grid)sender).DataContext;
 
             await pingable.PingAsync().ConfigureAwait(false);
         }
@@ -74,11 +74,10 @@ namespace Pingy.GUI
 
             var currentMonitor = System.Windows.Forms.Screen.FromHandle(windowHandle);
 
+            double bottom = currentMonitor?.WorkingArea.Bottom ?? SystemParameters.WorkArea.Bottom;
             double leeway = 150d;
 
-            MaxHeight = currentMonitor == null
-                ? SystemParameters.WorkArea.Bottom - leeway
-                : currentMonitor.WorkingArea.Bottom - leeway;
-        }
+            MaxHeight = bottom - leeway;
+        }        
     }
 }

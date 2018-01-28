@@ -22,7 +22,7 @@ namespace Pingy.Model
         #endregion
 
         #region Properties
-        public bool Updating => Addresses
+        public bool IsUpdating => Addresses
             .Where(x => x.Status == PingStatus.Updating)
             .Any();
 
@@ -37,6 +37,7 @@ namespace Pingy.Model
         public PingManager()
         {
             timer.Tick += Timer_Tick;
+
             timer.Start();
         }
 
@@ -109,7 +110,7 @@ namespace Pingy.Model
 
         public async Task PingAllAsync()
         {
-            if (Updating)
+            if (IsUpdating)
             {
                 return;
             }
@@ -123,7 +124,7 @@ namespace Pingy.Model
         
         public void Cancel()
         {
-            if (Updating)
+            if (IsUpdating)
             {
                 cts.Cancel();
 

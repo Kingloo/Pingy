@@ -150,7 +150,7 @@ namespace Pingy.Model
             {
                 var ping = new Ping();
                 
-                reply = await ping.SendPingAsync(ip, 1500).ConfigureAwait(false);
+                reply = await ping.SendPingAsync(ip, 1800).ConfigureAwait(false);
             }
             catch (PingException ex)
             {
