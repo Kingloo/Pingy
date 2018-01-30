@@ -118,6 +118,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="FileSystem.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Model\Domain.cs" />
     <Compile Include="Model\IP.cs" />

@@ -65,46 +65,30 @@ namespace Pingy.Model
         {
             _addresses.Clear();
 
-            FileStream fsAsync = null;
+            string[] lines = Array.Empty<string>();
 
             try
             {
-                fsAsync = new FileStream(
-                    File.FullName,
-                    FileMode.Open,
-                    FileAccess.Read,
-                    FileShare.None,
-                    4096,
-                    FileOptions.Asynchronous | FileOptions.SequentialScan);
-
-                using (StreamReader sr = new StreamReader(fsAsync))
-                {
-                    fsAsync = null;
-
-                    string line = string.Empty;
-
-                    // no ConfAwait because we are adding directly to the collection
-                    while ((line = await sr.ReadLineAsync()) != null)
-                    {
-                        if (line.StartsWith("#")) { continue; }
-
-                        if (PingBase.TryCreate(line, out PingBase ping))
-                        {
-                            _addresses.Add(ping);
-                        }
-                    }
-                }
+                lines = await FileSystem.GetLinesAsync(File);
             }
             catch (FileNotFoundException ex)
             {
-                // .ConfAwait should be fine here,
-                // if the file isn't found, we don't need to be synchronous with the collection
+                await Log.LogExceptionAsync(ex).ConfigureAwait(false);
 
-                await Log.LogExceptionAsync(ex, File.FullName).ConfigureAwait(false);
+                return;
             }
-            finally
+            
+            foreach (string each in lines)
             {
-                fsAsync?.Dispose();
+                if (each.StartsWith("#"))
+                {
+                    continue;
+                }
+
+                if (PingBase.TryCreate(each, out PingBase ping))
+                {
+                    _addresses.Add(ping);
+                }
             }
         }
 

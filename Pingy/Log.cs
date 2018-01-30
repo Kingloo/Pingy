@@ -29,9 +29,10 @@ namespace Pingy
 
         private static FileInfo CreateLogFile(string fullPath)
         {
-            using (StreamWriter sw = File.CreateText(fullPath)) { }
-
-            return new FileInfo(fullPath);
+            using (var sw = File.CreateText(fullPath))
+            {
+                return new FileInfo(fullPath);
+            }
         }
 
 
