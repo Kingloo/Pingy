@@ -41,18 +41,15 @@ namespace Pingy.Model
 
         private static async Task<IPAddress> ResolveHostNameAsync(string hostName)
         {
-            IPAddress[] ips = null;
+            IPAddress[] ips = Array.Empty<IPAddress>();
 
             try
             {
                 ips = await Dns.GetHostAddressesAsync(hostName).ConfigureAwait(false);
             }
-            catch (SocketException ex)
-            {
-                await Log.LogExceptionAsync(ex, hostName).ConfigureAwait(false);
-            }
+            catch (SocketException) { }
 
-            return ips == null ? IPAddress.None : ips.First();
+            return ips.Length > 0 ? ips[0] : IPAddress.None;
         }
 
         protected override void ParsePingReply(PingReply reply)

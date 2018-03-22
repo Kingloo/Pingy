@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Globalization;
 using System.IO;
 using System.Windows;
 using System.Windows.Threading;
 using Pingy.GUI;
+using Pingy.Model;
 
 namespace Pingy
 {
@@ -18,22 +18,17 @@ namespace Pingy
 
             InitializeComponent();
 
-            MainWindow = new MainWindow(file);
+            MainWindow = new MainWindow
+            {
+                DataContext = new PingManager(file)
+            };
 
             MainWindow.Show();
         }
 
-        private async void Application_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        private void Application_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
-            string errorMessage = string.Format(
-                CultureInfo.CurrentCulture,
-                "A fatal error occurred.\n{0}\n{1}",
-                e.Exception.GetType().Name,
-                e.Exception.Message);
-
-            MessageBox.Show(errorMessage, "Fatal Error", MessageBoxButton.OK, MessageBoxImage.Error);
-
-            await Log.LogExceptionAsync(e.Exception, true).ConfigureAwait(false);
+            Log.LogException(e.Exception, true);
         }
     }
 }

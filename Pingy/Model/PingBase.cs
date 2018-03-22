@@ -117,7 +117,7 @@ namespace Pingy.Model
         {
             Status = PingStatus.Updating;
 
-            PingReply reply = null;
+            PingReply reply = default;
 
             try
             {
@@ -149,13 +149,10 @@ namespace Pingy.Model
             try
             {
                 var ping = new Ping();
-                
-                reply = await ping.SendPingAsync(ip, 1800).ConfigureAwait(false);
+
+                reply = await ping.SendPingAsync(ip, 2000).ConfigureAwait(false);
             }
-            catch (PingException ex)
-            {
-                await Log.LogExceptionAsync(ex, ip.ToString()).ConfigureAwait(false);
-            }
+            catch (PingException) { }
             
             return reply;
         }

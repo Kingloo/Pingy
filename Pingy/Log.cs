@@ -29,7 +29,7 @@ namespace Pingy
 
         private static FileInfo CreateLogFile(string fullPath)
         {
-            using (var sw = File.CreateText(fullPath))
+            using (StreamWriter sw = File.CreateText(fullPath))
             {
                 return new FileInfo(fullPath);
             }
@@ -62,28 +62,20 @@ namespace Pingy
 
         public static void LogException(Exception ex, string message, bool includeStackTrace)
         {
+            if (ex == null) { return; }
+
             StringBuilder sb = new StringBuilder();
 
-            if (String.IsNullOrWhiteSpace(message))
-            {
-                sb.AppendLine(
-                    string.Format(
-                        CultureInfo.CurrentCulture,
-                        "{0} - {1}",
-                        ex.GetType().FullName,
-                        ex.Message));
-            }
-            else
-            {
-                sb.AppendLine(
-                    string.Format(
-                        CultureInfo.CurrentCulture,
-                        "{0} - {1} - {2}",
-                        ex.GetType().FullName,
-                        ex.Message,
-                        message));
-            }
+            sb.Append(ex.GetType().FullName);
+            sb.Append(" - ");
+            sb.Append(ex.Message);
 
+            if (!String.IsNullOrWhiteSpace(message))
+            {
+                sb.Append(" - ");
+                sb.Append(message);
+            }
+            
             if (includeStackTrace)
             {
                 sb.AppendLine(ex.StackTrace);
@@ -103,15 +95,18 @@ namespace Pingy
 
         public static async Task LogExceptionAsync(Exception ex, string message, bool includeStackTrace)
         {
+            if (ex == null) { return; }
+
             StringBuilder sb = new StringBuilder();
-            
-            if (String.IsNullOrWhiteSpace(message))
+
+            sb.Append(ex.GetType().FullName);
+            sb.Append(" - ");
+            sb.Append(ex.Message);
+
+            if (!String.IsNullOrWhiteSpace(message))
             {
-                sb.AppendLine(string.Format(CultureInfo.CurrentCulture, "{0} - {1}", ex.GetType().FullName, ex.Message));
-            }
-            else
-            {
-                sb.AppendLine(string.Format(CultureInfo.CurrentCulture, "{0} - {1} - {2}", ex.GetType().FullName, ex.Message, message));
+                sb.Append(" - ");
+                sb.Append(message);
             }
             
             if (includeStackTrace)
@@ -125,16 +120,18 @@ namespace Pingy
 
         private static string FormatMessage(string message)
         {
-            string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss (zzz)", CultureInfo.CurrentCulture);
+            var cc = CultureInfo.CurrentCulture;
+
+            string timestamp = DateTimeOffset.Now.ToString("yyyy-MM-dd HH:mm:ss (zzz)", cc);
             string processName = Process.GetCurrentProcess().MainModule.ModuleName;
 
-            return string.Format(CultureInfo.CurrentCulture, "{0} - {1} - {2}", timestamp, processName, message);
+            return string.Format(cc, "{0} - {1} - {2}", timestamp, processName, message);
         }
 
 
         private static void WriteToFile(string text)
         {
-            FileStream fs = null;
+            FileStream fs = default;
 
             try
             {
@@ -150,20 +147,20 @@ namespace Pingy
                 {
                     fs = null;
 
-                    sw.WriteLine(text);
+                    sw.Write(text);
                 }
             }
             catch (FileNotFoundException) { }
             catch (IOException) { }
             finally
             {
-                fs?.Dispose();
+                fs?.Close();
             }
         }
 
         private static async Task WriteToFileAsync(string text)
         {
-            FileStream fsAsync = null;
+            FileStream fsAsync = default;
 
             try
             {
@@ -179,14 +176,14 @@ namespace Pingy
                 {
                     fsAsync = null;
 
-                    await sw.WriteLineAsync(text).ConfigureAwait(false);
+                    await sw.WriteAsync(text).ConfigureAwait(false);
                 }
             }
             catch (FileNotFoundException) { }
             catch (IOException) { }
             finally
             {
-                fsAsync?.Dispose();
+                fsAsync?.Close();
             }
         }
     }

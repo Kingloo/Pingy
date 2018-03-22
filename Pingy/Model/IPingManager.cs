@@ -10,9 +10,9 @@ namespace Pingy.Model
 
         IReadOnlyCollection<IPingable> Addresses { get; }
 
+        void StartTimer();
         void OpenAddressesFile();
-        void SetFile(FileInfo file);
-
+        
         Task LoadAddressesAsync();
         Task PingAllAsync();
     }

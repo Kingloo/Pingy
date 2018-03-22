@@ -7,16 +7,36 @@ namespace Pingy
 {
     public static class FileSystem
     {
-        public static async Task<string[]> GetLinesAsync(FileInfo file)
+        public static Task<string[]> GetLinesAsync(FileInfo file) => GetLinesAsync(file, false);
+
+        public static Task<string[]> GetLinesAsync(FileInfo file, bool createIfAbsent)
         {
             if (file == null) { throw new ArgumentNullException(nameof(file)); }
-            if (!file.Exists) { throw new FileNotFoundException(nameof(file)); }
-            
+
+            FileMode mode = FileMode.Open;
+
+            if (!file.Exists)
+            {
+                if (createIfAbsent)
+                {
+                    mode = FileMode.OpenOrCreate;
+                }
+                else
+                {
+                    throw new FileNotFoundException(nameof(file));
+                }
+            }
+
+            return GetLinesAsyncImpl(file, mode);
+        }
+
+        private static async Task<string[]> GetLinesAsyncImpl(FileInfo file, FileMode mode)
+        {
             var lines = new List<string>();
 
-            FileStream fsAsync = new FileStream(
+            var fsAsync = new FileStream(
                 file.FullName,
-                FileMode.Open,
+                mode,
                 FileAccess.Read,
                 FileShare.None,
                 4096,
@@ -34,7 +54,7 @@ namespace Pingy
                 }
             }
 
-            fsAsync?.Close();
+            fsAsync?.Dispose();
 
             return lines.ToArray();
         }

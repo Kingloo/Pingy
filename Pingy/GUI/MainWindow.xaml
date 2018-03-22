@@ -3,14 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:model="clr-namespace:Pingy.Model"
         Initialized="Window_Initialized"
+        DataContextChanged="Window_DataContextChanged"
         Loaded="Window_Loaded"
         KeyDown="Window_KeyDown"
         LocationChanged="Window_LocationChanged">
 
-    <Window.DataContext>
-        <model:PingManager x:Name="pingManager" />
-    </Window.DataContext>
-    
     <Window.Style>
         <Style TargetType="{x:Type Window}" BasedOn="{StaticResource {x:Type FrameworkElement}}">
             <Setter Property="Title" Value="Pingy" />

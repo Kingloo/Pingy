@@ -15,16 +15,14 @@ namespace Pingy.Model
         #region Fields
         private readonly DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.ApplicationIdle)
         {
-            Interval = TimeSpan.FromSeconds(20)
+            Interval = TimeSpan.FromSeconds(25d)
         };
 
         private CancellationTokenSource cts = new CancellationTokenSource();
         #endregion
 
         #region Properties
-        public bool IsUpdating => Addresses
-            .Where(x => x.Status == PingStatus.Updating)
-            .Any();
+        public bool IsUpdating => Addresses.Any(x => x.Status == PingStatus.Updating);
 
         private FileInfo _file = null;
         public FileInfo File => _file;
@@ -34,50 +32,26 @@ namespace Pingy.Model
         public IReadOnlyCollection<IPingable> Addresses => _addresses;
         #endregion
 
-        public PingManager()
+        public PingManager(FileInfo file)
         {
-            timer.Tick += Timer_Tick;
+            _file = file ?? throw new ArgumentNullException(nameof(file));
+        }
+
+        public void StartTimer()
+        {
+            timer.Tick += async (s, e) => await PingAllAsync();
 
             timer.Start();
         }
 
-        private async void Timer_Tick(object sender, EventArgs e)
-            => await PingAllAsync();
-
         public void OpenAddressesFile() => Process.Start(_file.FullName);
-
-        public void SetFile(FileInfo file)
-        {
-            if (file == null)
-            {
-                throw new ArgumentNullException(nameof(file));
-            }
-
-            if (!file.Exists)
-            {
-                throw new FileNotFoundException("SetFile failed", file.FullName);
-            }
-
-            _file = file;
-        }
 
         public async Task LoadAddressesAsync()
         {
             _addresses.Clear();
 
-            string[] lines = Array.Empty<string>();
+            string[] lines = await FileSystem.GetLinesAsync(File, createIfAbsent: true);
 
-            try
-            {
-                lines = await FileSystem.GetLinesAsync(File);
-            }
-            catch (FileNotFoundException ex)
-            {
-                await Log.LogExceptionAsync(ex).ConfigureAwait(false);
-
-                return;
-            }
-            
             foreach (string each in lines)
             {
                 if (each.StartsWith("#"))
@@ -94,16 +68,14 @@ namespace Pingy.Model
 
         public async Task PingAllAsync()
         {
-            if (IsUpdating)
+            if (!IsUpdating)
             {
-                return;
-            }
-            
-            var tasks = Addresses
-                .Select(x => x.PingAsync(cts.Token))
-                .ToList();
+                var tasks = Addresses
+                    .Select(x => x.PingAsync(cts.Token))
+                    .ToList();
 
-            await Task.WhenAll(tasks);
+                await Task.WhenAll(tasks);
+            }
         }
         
         public void Cancel()

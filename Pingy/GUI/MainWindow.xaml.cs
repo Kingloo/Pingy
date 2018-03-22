@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -10,16 +9,11 @@ namespace Pingy.GUI
 {
     public partial class MainWindow : Window
     {
-        public MainWindow(FileInfo file)
+        private PingManager pingManager = default;
+
+        public MainWindow()
         {
-            if (file == null)
-            {
-                throw new ArgumentNullException(nameof(file));
-            }
-
             InitializeComponent();
-
-            pingManager.SetFile(file);
         }
 
         private void Window_Initialized(object sender, EventArgs e)
@@ -28,8 +22,15 @@ namespace Pingy.GUI
             Left = SystemParameters.WorkArea.Right - 150d - Width;
         }
 
+        private void Window_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            pingManager = (PingManager)e.NewValue;
+        }
+
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            pingManager.StartTimer();
+
             await pingManager.LoadAddressesAsync();
             
             await pingManager.PingAllAsync();
