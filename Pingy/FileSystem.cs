@@ -11,7 +11,7 @@ namespace Pingy
 
         public static Task<string[]> GetLinesAsync(FileInfo file, bool createIfAbsent)
         {
-            if (file == null) { throw new ArgumentNullException(nameof(file)); }
+            if (file is null) { throw new ArgumentNullException(nameof(file)); }
 
             FileMode mode = FileMode.Open;
 

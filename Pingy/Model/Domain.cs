@@ -25,7 +25,7 @@ namespace Pingy.Model
 
             IPAddress ip = await ResolveHostNameAsync(Host.HostName).ConfigureAwait(false);
 
-            if (ip.Equals(IPAddress.None))
+            if (ip == IPAddress.None)
             {
                 Status = PingStatus.DnsResolutionError;
 
@@ -41,20 +41,21 @@ namespace Pingy.Model
 
         private static async Task<IPAddress> ResolveHostNameAsync(string hostName)
         {
-            IPAddress[] ips = Array.Empty<IPAddress>();
-
             try
             {
-                ips = await Dns.GetHostAddressesAsync(hostName).ConfigureAwait(false);
-            }
-            catch (SocketException) { }
+                IPAddress[] ips = await Dns.GetHostAddressesAsync(hostName).ConfigureAwait(false);
 
-            return ips.Length > 0 ? ips[0] : IPAddress.None;
+                return ips.First() ?? IPAddress.None;
+            }
+            catch (SocketException)
+            {
+                return IPAddress.None;
+            }
         }
 
         protected override void ParsePingReply(PingReply reply)
         {
-            if (reply == null)
+            if (reply is null)
             {
                 Status = PingStatus.DnsResolutionError;
             }

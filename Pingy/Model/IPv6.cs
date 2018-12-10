@@ -10,7 +10,7 @@ namespace Pingy.Model
         
         protected override void ParsePingReply(PingReply reply)
         {
-            if (reply == null)
+            if (reply is null)
             {
                 Status = PingStatus.IPv6GatewayMissing;
             }

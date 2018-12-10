@@ -101,17 +101,14 @@ namespace Pingy.Model
                 };
 
                 pingBase = new Domain(hostEntry);
-
                 return true;
             }
 
             pingBase = null;
-
             return false;
         }
 
-        public async Task PingAsync()
-            => await PingAsync(CancellationToken.None).ConfigureAwait(false);
+        public Task PingAsync() => PingAsync(CancellationToken.None);
 
         public virtual async Task PingAsync(CancellationToken token)
         {
@@ -125,7 +122,7 @@ namespace Pingy.Model
 
                 while (!task.IsCompleted)
                 {
-                    await Task.Delay(150).ConfigureAwait(false);
+                    await Task.Delay(250).ConfigureAwait(false);
 
                     token.ThrowIfCancellationRequested();
                 }
@@ -144,17 +141,16 @@ namespace Pingy.Model
         
         protected static async Task<PingReply> PingIPAddressAsync(IPAddress ip)
         {
-            PingReply reply = null;
-
             try
             {
-                var ping = new Ping();
+                Ping ping = new Ping();
 
-                reply = await ping.SendPingAsync(ip, 2000).ConfigureAwait(false);
+                return await ping.SendPingAsync(ip, 2000).ConfigureAwait(false);
             }
-            catch (PingException) { }
-            
-            return reply;
+            catch (PingException)
+            {
+                return null;
+            }
         }
 
         protected virtual void ParsePingReply(PingReply reply)
@@ -165,15 +161,9 @@ namespace Pingy.Model
             }
             else
             {
-                switch (reply.Status)
-                {
-                    case IPStatus.Success:
-                        Status = PingStatus.Success;
-                        break;
-                    default:
-                        Status = PingStatus.Failure;
-                        break;
-                }
+                Status = (reply.Status == IPStatus.Success)
+                    ? PingStatus.Success
+                    : PingStatus.Failure;
             }
         }
     }

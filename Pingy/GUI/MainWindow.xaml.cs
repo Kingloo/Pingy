@@ -16,12 +16,6 @@ namespace Pingy.GUI
             InitializeComponent();
         }
 
-        private void Window_Initialized(object sender, EventArgs e)
-        {
-            Top = 50d;
-            Left = SystemParameters.WorkArea.Right - 150d - Width;
-        }
-
         private void Window_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             pingManager = (PingManager)e.NewValue;

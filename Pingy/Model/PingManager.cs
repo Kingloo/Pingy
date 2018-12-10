@@ -24,8 +24,7 @@ namespace Pingy.Model
         #region Properties
         public bool IsUpdating => Addresses.Any(x => x.Status == PingStatus.Updating);
 
-        private FileInfo _file = null;
-        public FileInfo File => _file;
+        public FileInfo File { get; } = null;
 
         private readonly ObservableCollection<IPingable> _addresses
             = new ObservableCollection<IPingable>();
@@ -34,7 +33,7 @@ namespace Pingy.Model
 
         public PingManager(FileInfo file)
         {
-            _file = file ?? throw new ArgumentNullException(nameof(file));
+            File = file ?? throw new ArgumentNullException(nameof(file));
         }
 
         public void StartTimer()
@@ -44,7 +43,7 @@ namespace Pingy.Model
             timer.Start();
         }
 
-        public void OpenAddressesFile() => Process.Start(_file.FullName);
+        public void OpenAddressesFile() => Process.Start(File.FullName);
 
         public async Task LoadAddressesAsync()
         {
@@ -66,7 +65,7 @@ namespace Pingy.Model
             }
         }
 
-        public async Task PingAllAsync()
+        public Task PingAllAsync()
         {
             if (!IsUpdating)
             {
@@ -74,7 +73,11 @@ namespace Pingy.Model
                     .Select(x => x.PingAsync(cts.Token))
                     .ToList();
 
-                await Task.WhenAll(tasks);
+                return Task.WhenAll(tasks);
+            }
+            else
+            {
+                return Task.CompletedTask;
             }
         }
         

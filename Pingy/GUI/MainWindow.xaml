@@ -2,7 +2,6 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:model="clr-namespace:Pingy.Model"
-        Initialized="Window_Initialized"
         DataContextChanged="Window_DataContextChanged"
         Loaded="Window_Loaded"
         KeyDown="Window_KeyDown"
@@ -12,7 +11,7 @@
         <Style TargetType="{x:Type Window}" BasedOn="{StaticResource {x:Type FrameworkElement}}">
             <Setter Property="Title" Value="Pingy" />
             <Setter Property="Background" Value="Black" />
-            <Setter Property="SizeToContent" Value="WidthAndHeight" />
+            <Setter Property="SizeToContent" Value="Height" />
             <Setter Property="Top" Value="75" />
             <Setter Property="Left" Value="125" />
             <Setter Property="MinWidth" Value="450" />
@@ -21,7 +20,8 @@
     </Window.Style>
 
     <Window.Resources>
-        <DataTemplate DataType="{x:Type model:IPingable}" x:Key="IPingableTemplate">
+        <DataTemplate DataType="{x:Type model:IPingable}"
+                      x:Key="IPingableTemplate">
             <DataTemplate.Resources>
                 <model:PingStatusToColorConverter x:Key="statusColorConv"
                                                   None="{StaticResource PingStatusNone}"
