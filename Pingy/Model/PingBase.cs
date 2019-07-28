@@ -11,6 +11,8 @@ namespace Pingy.Model
 {
     public abstract class PingBase : IPingable, INotifyPropertyChanged
     {
+        private const int timeout = 2500;
+
         #region Events
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -114,29 +116,26 @@ namespace Pingy.Model
         {
             Status = PingStatus.Updating;
 
-            PingReply reply = default;
-
             try
             {
-                Task<PingReply> task = Task.Run(() => PingIPAddressAsync(Address));
+                Task<PingReply> task = Task.Run(() => PingIPAddressAsync(Address), token);
 
-                while (!task.IsCompleted)
-                {
-                    await Task.Delay(250).ConfigureAwait(false);
-
-                    token.ThrowIfCancellationRequested();
-                }
-                
-                reply = await task.ConfigureAwait(false);
+                PingReply reply = await task.ConfigureAwait(false);
                 
                 ParsePingReply(reply);
+
+                RoundtripTime = reply.RoundtripTime;
             }
-            catch (OperationCanceledException)
+            catch (TaskCanceledException)
             {
                 Status = PingStatus.Cancelled;
+
+                RoundtripTime = 0;
             }
-            
-            RoundtripTime = reply?.RoundtripTime ?? 0;
+            // catch (OperationCanceledException)
+            // {
+            //     Status = PingStatus.Cancelled;
+            // }
         }
         
         protected static async Task<PingReply> PingIPAddressAsync(IPAddress ip)
@@ -145,7 +144,7 @@ namespace Pingy.Model
             {
                 Ping ping = new Ping();
 
-                return await ping.SendPingAsync(ip, 2000).ConfigureAwait(false);
+                return await ping.SendPingAsync(ip, timeout).ConfigureAwait(false);
             }
             catch (PingException)
             {
@@ -155,7 +154,7 @@ namespace Pingy.Model
 
         protected virtual void ParsePingReply(PingReply reply)
         {
-            if (reply == null)
+            if (reply is null)
             {
                 Status = PingStatus.Failure;
             }
