@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -50,14 +51,11 @@ namespace Pingy.Gui
             }
         }
 
-        private async void Grid_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private async void Grid_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (e.ChangedButton == MouseButton.Left)
+            if ((PingBase)((Grid)sender).DataContext is PingBase ping)
             {
-                if ((PingBase)((Grid)sender).DataContext is PingBase ping)
-                {
-                    await vm.PingAsync(ping);
-                }
+                await vm.PingAsync(ping);
             }
         }
     }
