@@ -4,7 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Pingy.Model;
 
-namespace Pingy
+namespace Pingy.Gui
 {
     public partial class MainWindow : Window
     {

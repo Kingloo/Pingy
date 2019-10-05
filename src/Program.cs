@@ -1,4 +1,5 @@
 using System;
+using Pingy.Gui;
 
 namespace Pingy
 {

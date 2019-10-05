@@ -8,7 +8,7 @@ using Pingy.Common;
 using Pingy.Extensions;
 using Pingy.Model;
 
-namespace Pingy
+namespace Pingy.Gui
 {
     public class MainWindowViewModel
     {

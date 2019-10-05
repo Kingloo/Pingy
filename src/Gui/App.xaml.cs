@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Threading;
 using Pingy.Common;
 
-namespace Pingy
+namespace Pingy.Gui
 {
     public partial class App : Application
     {
