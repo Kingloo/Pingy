@@ -10,10 +10,10 @@
         <Style TargetType="{x:Type Window}" BasedOn="{StaticResource {x:Type FrameworkElement}}">
             <Setter Property="Title" Value="Pingy" />
             <Setter Property="Background" Value="Black" />
-            <Setter Property="SizeToContent" Value="Height" />
+            <Setter Property="SizeToContent" Value="WidthAndHeight" />
+            <Setter Property="MinWidth" Value="350" />
             <Setter Property="Top" Value="75" />
             <Setter Property="Left" Value="125" />
-            <Setter Property="MinWidth" Value="450" />
             <Setter Property="ResizeMode" Value="CanMinimize" />
         </Style>
     </Window.Style>
@@ -38,8 +38,8 @@
                 </Grid.ToolTip>
 
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="3*" />
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition MinWidth="350" />
+                    <ColumnDefinition Width="100" />
                 </Grid.ColumnDefinitions>
 
                 <Label Grid.Column="0" Content="{Binding DisplayName}" />

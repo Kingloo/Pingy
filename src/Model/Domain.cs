@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -10,18 +11,20 @@ namespace Pingy
 {
     public class Domain : PingBase
     {
-        private readonly IPHostEntry ipHostEntry = null;
+        private readonly IPHostEntry host = null;
 
         public Domain(IPHostEntry ipHostEntry)
         {
-            this.ipHostEntry = ipHostEntry;
+            host = ipHostEntry ?? throw new ArgumentNullException(nameof(ipHostEntry));
+            
+            DisplayName = host.HostName;
         }
 
         public override async Task PingAsync(CancellationToken token)
         {
             Status = PingStatus.Updating;
 
-            IPAddress ip = await ResolveHostNameAsync(ipHostEntry.HostName).ConfigureAwait(false);
+            IPAddress ip = await ResolveHostNameAsync(host.HostName).ConfigureAwait(false);
 
             if (ip == IPAddress.None)
             {

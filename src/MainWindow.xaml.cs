@@ -17,6 +17,8 @@ namespace Pingy
             InitializeComponent();
 
             vm = viewModel;
+            
+            DataContext = vm;
         }
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)

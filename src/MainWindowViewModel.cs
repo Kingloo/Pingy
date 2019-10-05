@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 using Pingy.Extensions;
 using Pingy.Model;
 
@@ -11,12 +11,19 @@ namespace Pingy
 {
     public class MainWindowViewModel
     {
+        private static TimeSpan defaultTimerFrequency = TimeSpan.FromSeconds(12d);
+
         private string path = string.Empty;
+        private readonly DispatcherTimer timer = null;
 
         private readonly ObservableCollection<PingBase> _pings = new ObservableCollection<PingBase>();
         public IReadOnlyCollection<PingBase> Pings => _pings;
 
         public MainWindowViewModel(string path)
+            : this(path, defaultTimerFrequency)
+        { }
+
+        public MainWindowViewModel(string path, TimeSpan updateFrequency)
         {
             if (String.IsNullOrWhiteSpace(path))
             {
@@ -24,15 +31,28 @@ namespace Pingy
             }
             
             this.path = path;
+
+            timer = new DispatcherTimer(DispatcherPriority.ApplicationIdle)
+            {
+                Interval = updateFrequency
+            };
+
+            timer.Tick += Timer_Tick;
+            timer.Start();
         }
+
+        private async void Timer_Tick(object sender, EventArgs e) => await PingAllAsync();
 
         public async Task LoadAsync()
         {
+            _pings.Clear();
+
             string[] lines = await LoadLinesFromFileAsync(path, "#");
 
-            IEnumerable<PingBase> pings = CreatePings(lines);
-
-            AddAndRemovePings(pings);
+            foreach (PingBase each in CreatePings(lines))
+            {
+                _pings.Add(each);
+            }
         }
 
         private static async Task<string[]> LoadLinesFromFileAsync(string path, string commentChar)
@@ -80,22 +100,6 @@ namespace Pingy
                 {
                     yield return ping;
                 }
-            }
-        }
-
-        private void AddAndRemovePings(IEnumerable<PingBase> pings)
-        {
-            var toAdd = pings.Where(p => !_pings.Contains(p)).ToList();
-            var toRemove = _pings.Where(p => !pings.Contains(p)).ToList();
-
-            foreach (PingBase each in toAdd)
-            {
-                _pings.Add(each);
-            }
-
-            foreach (PingBase each in toRemove)
-            {
-                _pings.Remove(each);
             }
         }
 
