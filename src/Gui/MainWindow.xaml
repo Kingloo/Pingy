@@ -22,7 +22,7 @@
         <DataTemplate DataType="{x:Type model:PingBase}"
                       x:Key="PingBaseTemplate">
             <Grid Background="{Binding Path=Status, Converter={StaticResource statusColorConverter}}"
-                  MouseRightButtonUp="Grid_MouseRightButtonUp"
+                  MouseLeftButtonUp="Grid_MouseLeftButtonUp"
                   Margin="0,7,0,0">
 
                 <Grid.ToolTip>

@@ -50,7 +50,7 @@ namespace Pingy.Gui
             }
         }
 
-        private async void Grid_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        private async void Grid_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
             {
