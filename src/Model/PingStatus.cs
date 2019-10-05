@@ -1,4 +1,4 @@
-namespace Pingy
+namespace Pingy.Model
 {
     public enum PingStatus
     {

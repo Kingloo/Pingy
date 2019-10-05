@@ -1,7 +1,8 @@
 ﻿<Window x:Class="Pingy.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:Pingy">
+        xmlns:local="clr-namespace:Pingy"
+        Loaded="MainWindowLoaded">
     
     <Window.Style>
         <Style TargetType="{x:Type Window}" BasedOn="{StaticResource {x:Type FrameworkElement}}">
