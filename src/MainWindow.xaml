@@ -2,7 +2,9 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:Pingy"
-        Loaded="MainWindowLoaded">
+        xmlns:model="clr-namespace:Pingy.Model"
+        Loaded="Window_Loaded"
+        KeyDown="Window_KeyDown">
     
     <Window.Style>
         <Style TargetType="{x:Type Window}" BasedOn="{StaticResource {x:Type FrameworkElement}}">
@@ -16,7 +18,39 @@
         </Style>
     </Window.Style>
 
-    <ItemsControl>
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type model:PingBase}"
+                      x:Key="PingBaseTemplate">
+            <Grid Background="{Binding Path=Status, Converter={StaticResource statusColorConverter}}"
+                  MouseRightButtonUp="Grid_MouseRightButtonUp"
+                  Margin="0,7,0,0">
+
+                <Grid.ToolTip>
+                    <ToolTip>
+                        <Label FontSize="18"
+                               FontWeight="SemiBold"
+                               Padding="3">
+                            <Label.Content>
+                                <TextBlock Text="{Binding DisplayText}" />
+                            </Label.Content>
+                        </Label>
+                    </ToolTip>
+                </Grid.ToolTip>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Column="0" Content="{Binding DisplayName}" />
+                <Label Grid.Column="1" Content="{Binding RoundtripTime}" />
+
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
+
+    <ItemsControl ItemsSource="{Binding Pings}"
+                  ItemTemplate="{StaticResource PingBaseTemplate}">
         <ItemsControl.Template>
             <ControlTemplate>
                 <ScrollViewer CanContentScroll="True">

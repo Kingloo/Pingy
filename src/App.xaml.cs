@@ -1,14 +1,18 @@
 ﻿using System;
+using System.IO;
 using System.Windows;
 
 namespace Pingy
 {
     public partial class App : Application
     {
-        private static string defaultPath = "";
+        private static string defaultDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        private static string defaultFileName = "PingyAddresses.txt";
+
+        private static string defaultFilePath = Path.Combine(defaultDirectory, defaultFileName);
 
         public App()
-            : this(defaultPath)
+            : this(defaultFilePath)
         { }
 
         public App(string path)

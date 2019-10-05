@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Pingy.Extensions;
 using Pingy.Model;
 
 namespace Pingy
@@ -115,6 +116,13 @@ namespace Pingy
             }
 
             return (tasks.Count > 0) ? Task.WhenAll(tasks) : Task.CompletedTask;
+        }
+
+        public void OpenFile()
+        {
+            FileInfo fInfo = new FileInfo(path);
+
+            fInfo.Launch();
         }
     }
 }
