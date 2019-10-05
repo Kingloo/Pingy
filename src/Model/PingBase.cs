@@ -10,7 +10,7 @@ namespace Pingy.Model
 {
     public abstract class PingBase : INotifyPropertyChanged
     {
-        private const int timeout = 4000;
+        private const int timeout = 2500;
 
         #region Events
         public event PropertyChangedEventHandler PropertyChanged;
