@@ -8,6 +8,7 @@
     <EnableDefaultApplicationDefinition>false</EnableDefaultApplicationDefinition>
     <StartupObject>Pingy.Program</StartupObject>
     <ApplicationIcon>Assets\Pingy.ico</ApplicationIcon>
+    <Copyright>© Kingloo 2019</Copyright>
   </PropertyGroup>
 
 </Project>
