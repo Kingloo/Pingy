@@ -1,4 +1,6 @@
 using System;
+using System.Globalization;
+using Pingy.Common;
 using Pingy.Gui;
 
 namespace Pingy
@@ -14,7 +16,9 @@ namespace Pingy
 
             if (exitCode != 0)
             {
-                // log
+                string message = string.Format(CultureInfo.CurrentCulture, "exited with code {0}", exitCode);
+
+                Log.Message(message);
             }
 
             return exitCode;
