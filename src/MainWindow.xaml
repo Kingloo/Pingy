@@ -5,8 +5,33 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Pingy"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Height="450" Width="800">
+    
+    <Window.Style>
+        <Style TargetType="{x:Type Window}" BasedOn="{StaticResource {x:Type FrameworkElement}}">
+            <Setter Property="Title" Value="Pingy" />
+            <Setter Property="Background" Value="Black" />
+            <Setter Property="SizeToContent" Value="Height" />
+            <Setter Property="Top" Value="75" />
+            <Setter Property="Left" Value="125" />
+            <Setter Property="MinWidth" Value="450" />
+            <Setter Property="ResizeMode" Value="CanMinimize" />
+        </Style>
+    </Window.Style>
 
-    </Grid>
+    <ItemsControl>
+        <ItemsControl.Template>
+            <ControlTemplate>
+                <ScrollViewer CanContentScroll="True">
+                    <ItemsPresenter />
+                </ScrollViewer>
+            </ControlTemplate>
+        </ItemsControl.Template>
+
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <VirtualizingStackPanel Margin="7,0,7,7" />
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+    </ItemsControl>
 </Window>
