@@ -8,8 +8,8 @@ namespace Pingy.Gui
 {
     public partial class App : Application
     {
-        private static string defaultDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-        private static string defaultFileName = "Pingy.txt";
+        private readonly static string defaultDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        private readonly static string defaultFileName = "Pingy.txt";
 
         private static string defaultFilePath = Path.Combine(defaultDirectory, defaultFileName);
 
