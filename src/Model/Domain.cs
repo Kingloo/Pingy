@@ -44,7 +44,7 @@ namespace Pingy
             {
                 IPAddress[] ips = await Dns.GetHostAddressesAsync(hostName).ConfigureAwait(false);
 
-                return ips.First() ?? IPAddress.None;
+                return ips.FirstOrDefault() ?? IPAddress.None;
             }
             catch (SocketException)
             {
