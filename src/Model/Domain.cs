@@ -11,11 +11,11 @@ namespace Pingy
 {
     public class Domain : PingBase
     {
-        private readonly IPHostEntry host = null;
+        private readonly IPHostEntry host;
 
         public Domain(IPHostEntry ipHostEntry)
         {
-            host = ipHostEntry ?? throw new ArgumentNullException(nameof(ipHostEntry));
+            host = ipHostEntry;
             
             DisplayName = host.HostName;
         }
@@ -52,7 +52,7 @@ namespace Pingy
             }
         }
 
-        protected override void ParsePingReply(PingReply reply)
+        protected override void ParsePingReply(PingReply? reply)
         {
             if (reply is PingReply)
             {

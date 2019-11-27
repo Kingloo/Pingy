@@ -9,13 +9,13 @@ namespace Pingy.Converters
     [ValueConversion(typeof(PingStatus), typeof(Brush))]
     public class PingStatusToColorConverter : IValueConverter
     {
-        public Brush None { get; set; }
-        public Brush Updating { get; set; }
-        public Brush Success { get; set; }
-        public Brush DnsResolutionError { get; set; }
-        public Brush IPv6GatewayMissing { get; set; }
-        public Brush Failure { get; set; }
-        public Brush Cancelled { get; set; }
+        public Brush None { get; set; } = Brushes.White;
+        public Brush Updating { get; set; } = Brushes.White;
+        public Brush Success { get; set; } = Brushes.White;
+        public Brush DnsResolutionError { get; set; } = Brushes.White;
+        public Brush IPv6GatewayMissing { get; set; } = Brushes.White;
+        public Brush Failure { get; set; } = Brushes.White;
+        public Brush Cancelled { get; set; } = Brushes.White;
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

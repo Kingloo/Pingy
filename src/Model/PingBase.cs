@@ -13,7 +13,7 @@ namespace Pingy.Model
         private const int timeout = 2500;
 
         #region Events
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         protected bool SetProperty<T>(ref T storage, T value, string propertyName)
         {
@@ -70,14 +70,14 @@ namespace Pingy.Model
         }
         #endregion
 
-        public static bool TryCreate(string line, out PingBase pingBase)
+        public static bool TryCreate(string line, out PingBase? pingBase)
         {
             if (IPAddress.TryParse(line, out IPAddress address))
             {
                 pingBase = new IP(address);
                 return true;
             }
-            else if (Uri.TryCreate(string.Format(CultureInfo.CurrentCulture, "http://{0}", line), UriKind.Absolute, out Uri uri))
+            else if (Uri.TryCreate(string.Format(CultureInfo.CurrentCulture, "http://{0}", line), UriKind.Absolute, out Uri? uri))
             {
                 IPHostEntry hostEntry = new IPHostEntry
                 {
@@ -98,11 +98,11 @@ namespace Pingy.Model
         {
             Status = PingStatus.Updating;
 
-            PingReply reply = null;
+            PingReply? reply = null;
 
             try
             {
-                Task<PingReply> task = Task.Run(() => PingIPAddressAsync(Address), token);
+                Task<PingReply?> task = Task.Run(() => PingIPAddressAsync(Address), token);
 
                 reply = await task.ConfigureAwait(false);
             }
@@ -116,7 +116,7 @@ namespace Pingy.Model
             RoundtripTime = (reply is PingReply) ? reply.RoundtripTime : 0;
         }
         
-        protected static async Task<PingReply> PingIPAddressAsync(IPAddress ip)
+        protected static async Task<PingReply?> PingIPAddressAsync(IPAddress ip)
         {
             try
             {
@@ -130,7 +130,7 @@ namespace Pingy.Model
             }
         }
 
-        protected virtual void ParsePingReply(PingReply reply)
+        protected virtual void ParsePingReply(PingReply? reply)
         {
             if (reply is PingReply)
             {

@@ -15,7 +15,7 @@ namespace Pingy.Gui
         private static TimeSpan defaultTimerFrequency = TimeSpan.FromSeconds(12d);
 
         private string path = string.Empty;
-        private readonly DispatcherTimer timer = null;
+        private readonly DispatcherTimer timer;
 
         private readonly ObservableCollection<PingBase> _pings = new ObservableCollection<PingBase>();
         public IReadOnlyCollection<PingBase> Pings => _pings;

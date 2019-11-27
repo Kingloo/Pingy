@@ -8,12 +8,10 @@ namespace Pingy.Gui
 {
     public partial class MainWindow : Window
     {
-        private readonly MainWindowViewModel vm = null;
+        private readonly MainWindowViewModel vm;
 
         public MainWindow(MainWindowViewModel viewModel)
         {
-            if (viewModel is null) { throw new ArgumentNullException(nameof(viewModel)); }
-
             InitializeComponent();
 
             vm = viewModel;

@@ -11,17 +11,13 @@ namespace Pingy.Common
         {
             List<string> lines = new List<string>();
 
-            FileStream fsAsync = null;
+            FileStream fsAsync = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.None, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan);
 
             try
             {
-                fsAsync = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.None, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan);
-
                 using (StreamReader sr = new StreamReader(fsAsync))
                 {
-                    fsAsync = null;
-
-                    string line = string.Empty;
+                    string? line = string.Empty;
 
                     while ((line = await sr.ReadLineAsync().ConfigureAwait(false)) != null)
                     {
@@ -32,7 +28,7 @@ namespace Pingy.Common
                     }
                 }
             }
-            catch (FileNotFoundException)
+            catch (IOException)
             {
                 return Array.Empty<string>();
             }
