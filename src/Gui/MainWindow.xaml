@@ -4,7 +4,8 @@
         xmlns:local="clr-namespace:Pingy"
         xmlns:model="clr-namespace:Pingy.Model"
         Loaded="Window_Loaded"
-        KeyDown="Window_KeyDown">
+        KeyDown="Window_KeyDown"
+        LocationChanged="Window_LocationChanged">
     
     <Window.Style>
         <Style TargetType="{x:Type Window}" BasedOn="{StaticResource {x:Type FrameworkElement}}">

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using Pingy.Model;
 
 namespace Pingy.Gui
@@ -54,6 +56,29 @@ namespace Pingy.Gui
             {
                 await vm.PingAsync(ping);
             }
+        }
+
+        private void Window_LocationChanged(object sender, EventArgs e)
+        {
+            IntPtr windowHandle = new WindowInteropHelper(this).EnsureHandle();
+
+            var currentMonitor = System.Windows.Forms.Screen.FromHandle(windowHandle);
+
+            double bottom = currentMonitor?.WorkingArea.Bottom ?? SystemParameters.WorkArea.Bottom;
+            double leeway = 150d;
+
+            if (bottom - leeway < 0)
+            {
+                StringBuilder sb = new StringBuilder();
+
+                sb.AppendLine("bottom minus leeway was less than zero");
+                sb.AppendLine($"bottom: {bottom}, leeway: {leeway}, bottom - leeway = {bottom - leeway}");
+                sb.AppendLine(currentMonitor?.ToString() ?? "currentMonitor is null");
+
+                throw new ArgumentOutOfRangeException(nameof(MaxHeight), sb.ToString());
+            }
+
+            MaxHeight = bottom - leeway;
         }
     }
 }

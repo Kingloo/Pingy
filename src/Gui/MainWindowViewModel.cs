@@ -42,7 +42,7 @@ namespace Pingy.Gui
             timer.Start();
         }
 
-        private async void Timer_Tick(object sender, EventArgs e) => await PingAllAsync();
+        private async void Timer_Tick(object? sender, EventArgs e) => await PingAllAsync();
 
         public async Task LoadAsync()
         {
@@ -60,9 +60,15 @@ namespace Pingy.Gui
         {
             foreach (string line in lines)
             {
-                if (PingBase.TryCreate(line, out PingBase ping))
+                if (PingBase.TryCreate(line, out PingBase? ping))
                 {
-                    yield return ping;
+                    // the null check is to make nullable reference types shut up
+                    // a TryCreate returning true should guarantee that ping is not null
+                    // but the method signature must allow for ping being null for when return is false
+                    if (ping != null)
+                    {
+                        yield return ping;
+                    }
                 }
             }
         }
