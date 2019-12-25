@@ -113,7 +113,7 @@ namespace Pingy.Model
 
             ParsePingReply(reply);
 
-            RoundtripTime = (reply is PingReply) ? reply.RoundtripTime : 0;
+            RoundtripTime = (reply is PingReply) ? reply.RoundtripTime : -1;
         }
         
         protected static async Task<PingReply?> PingIPAddressAsync(IPAddress ip)

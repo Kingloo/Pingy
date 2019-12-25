@@ -11,7 +11,7 @@ namespace Pingy.Gui
         private readonly static string defaultDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         private readonly static string defaultFileName = "Pingy.txt";
 
-        private static string defaultFilePath = Path.Combine(defaultDirectory, defaultFileName);
+        private readonly static string defaultFilePath = Path.Combine(defaultDirectory, defaultFileName);
 
         public App()
             : this(defaultFilePath)

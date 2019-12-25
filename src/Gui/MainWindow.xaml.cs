@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Text;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -52,10 +52,10 @@ namespace Pingy.Gui
 
         private async void Grid_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if ((PingBase)((Grid)sender).DataContext is PingBase ping)
-            {
-                await vm.PingAsync(ping);
-            }
+            Grid grid = (Grid)sender;
+            PingBase ping = (PingBase)grid.DataContext;
+
+            await vm.PingAsync(ping);
         }
 
         private void Window_LocationChanged(object sender, EventArgs e)
@@ -69,13 +69,9 @@ namespace Pingy.Gui
 
             if (bottom - leeway < 0)
             {
-                StringBuilder sb = new StringBuilder();
+                string message = String.Format(CultureInfo.CurrentCulture, "bottom was less than leeway ({0}, {1})", bottom, leeway);
 
-                sb.AppendLine("bottom minus leeway was less than zero");
-                sb.AppendLine($"bottom: {bottom}, leeway: {leeway}, bottom - leeway = {bottom - leeway}");
-                sb.AppendLine(currentMonitor?.ToString() ?? "currentMonitor is null");
-
-                throw new ArgumentOutOfRangeException(nameof(MaxHeight), sb.ToString());
+                throw new ArgumentOutOfRangeException(nameof(MaxHeight), message);
             }
 
             MaxHeight = bottom - leeway;

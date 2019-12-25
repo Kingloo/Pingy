@@ -1,20 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using Pingy.Common;
-using Pingy.Extensions;
 using Pingy.Model;
 
 namespace Pingy.Gui
 {
     public class MainWindowViewModel
     {
-        private static TimeSpan defaultTimerFrequency = TimeSpan.FromSeconds(12d);
+        private static readonly TimeSpan defaultTimerFrequency = TimeSpan.FromSeconds(12d);
 
-        private string path = string.Empty;
+        private readonly string path = string.Empty;
         private readonly DispatcherTimer timer;
 
         private readonly ObservableCollection<PingBase> _pings = new ObservableCollection<PingBase>();
@@ -62,23 +60,14 @@ namespace Pingy.Gui
             {
                 if (PingBase.TryCreate(line, out PingBase? ping))
                 {
-                    // the null check is to make nullable reference types shut up
-                    // a TryCreate returning true should guarantee that ping is not null
-                    // but the method signature must allow for ping being null for when return is false
-                    if (ping != null)
-                    {
-                        yield return ping;
-                    }
+                    #nullable disable
+                    yield return ping;
+                    #nullable enable
                 }
             }
         }
 
-        public Task PingAsync(PingBase ping)
-        {
-            if (ping is null) { throw new ArgumentNullException(nameof(ping)); }
-
-            return ping.PingAsync();
-        }
+        public Task PingAsync(PingBase ping) => ping.PingAsync();
 
         public Task PingAllAsync()
         {
@@ -94,9 +83,10 @@ namespace Pingy.Gui
 
         public void OpenFile()
         {
-            FileInfo fInfo = new FileInfo(path);
-
-            fInfo.Launch();
+            if (!SystemLaunch.Path(path))
+            {
+                Log.Message($"could not open path: {path}");
+            }
         }
     }
 }
