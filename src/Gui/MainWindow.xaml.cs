@@ -28,7 +28,7 @@ namespace Pingy.Gui
             await vm.PingAllAsync();
         }
 
-        private async void Window_KeyDown(object sender, KeyEventArgs e)
+        private async void Window_KeyUp(object sender, KeyEventArgs e)
         {
             switch (e.Key)
             {
