@@ -11,7 +11,7 @@
             <Setter Property="Title" Value="Pingy" />
             <Setter Property="Background" Value="Black" />
             <Setter Property="SizeToContent" Value="WidthAndHeight" />
-            <Setter Property="MinWidth" Value="350" />
+            <Setter Property="MinWidth" Value="320" />
             <Setter Property="Top" Value="75" />
             <Setter Property="Left" Value="125" />
             <Setter Property="ResizeMode" Value="CanMinimize" />
@@ -21,19 +21,14 @@
     <Window.Resources>
         <DataTemplate DataType="{x:Type model:PingBase}"
                       x:Key="PingBaseTemplate">
+            
             <Grid Background="{Binding Path=Status, Converter={StaticResource statusColorConverter}}"
                   MouseRightButtonUp="Grid_MouseRightButtonUp"
                   Margin="0,7,0,0">
 
                 <Grid.ToolTip>
                     <ToolTip>
-                        <Label FontSize="18"
-                               FontWeight="SemiBold"
-                               Padding="3">
-                            <Label.Content>
-                                <TextBlock Text="{Binding DisplayText}" />
-                            </Label.Content>
-                        </Label>
+                        <Label Content="{Binding DisplayText}" />
                     </ToolTip>
                 </Grid.ToolTip>
 
@@ -43,7 +38,7 @@
                 </Grid.ColumnDefinitions>
 
                 <Label Grid.Column="0" Content="{Binding DisplayName}" />
-                <Label Grid.Column="1" Content="{Binding RoundtripTime}" />
+                <Label Grid.Column="1" Content="{Binding RoundtripTime}" FontSize="28" />
 
             </Grid>
         </DataTemplate>
