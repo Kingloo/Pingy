@@ -39,8 +39,8 @@
         </Style>
 
         <Style TargetType="{x:Type Control}" BasedOn="{StaticResource {x:Type FrameworkElement}}">
-            <Setter Property="FontFamily" Value="Consolas" />
-            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontFamily" Value="Cascadia Code, Calibri" />
+            <!--<Setter Property="FontWeight" Value="SemiBold" />-->
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
         </Style>
@@ -48,10 +48,6 @@
         <Style TargetType="{x:Type Label}" BasedOn="{StaticResource {x:Type Control}}">
             <Setter Property="Padding" Value="15" />
             <Setter Property="FontSize" Value="22" />
-        </Style>
-
-        <Style TargetType="{x:Type Label}" x:Key="TooltipLabel" BasedOn="{StaticResource {x:Type Control}}">
-            <Setter Property="FontSize" Value="15" />
         </Style>
 
         <Style TargetType="{x:Type ItemsControl}" BasedOn="{StaticResource {x:Type Control}}">

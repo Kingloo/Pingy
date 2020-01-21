@@ -28,7 +28,7 @@
 
                 <Grid.ToolTip>
                     <ToolTip>
-                        <Label Content="{Binding DisplayText}" />
+                        <Label Content="{Binding DisplayText}" Padding="4" />
                     </ToolTip>
                 </Grid.ToolTip>
 
