@@ -4,8 +4,9 @@
         xmlns:model="clr-namespace:Pingy.Model"
         Loaded="Window_Loaded"
         KeyUp="Window_KeyUp"
-        LocationChanged="Window_LocationChanged">
-    
+        LocationChanged="Window_LocationChanged"
+        Closing="Window_Closing">
+
     <Window.Style>
         <Style TargetType="{x:Type Window}" BasedOn="{StaticResource {x:Type FrameworkElement}}">
             <Setter Property="Title" Value="Pingy" />

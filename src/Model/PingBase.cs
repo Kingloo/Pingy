@@ -118,16 +118,18 @@ namespace Pingy.Model
         
         protected static async Task<PingReply?> PingIPAddressAsync(IPAddress ip)
         {
+            PingReply? reply = null;
+
             try
             {
-                Ping ping = new Ping();
+                using (Ping ping = new Ping())
+                {
+                    reply = await ping.SendPingAsync(ip, timeout).ConfigureAwait(false);
+                }
+            }
+            catch (PingException) { }
 
-                return await ping.SendPingAsync(ip, timeout).ConfigureAwait(false);
-            }
-            catch (PingException)
-            {
-                return null;
-            }
+            return reply;
         }
 
         protected virtual void ParsePingReply(PingReply? reply)

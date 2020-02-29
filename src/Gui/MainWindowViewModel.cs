@@ -10,19 +10,16 @@ namespace Pingy.Gui
 {
     public class MainWindowViewModel
     {
-        private static readonly TimeSpan defaultTimerFrequency = TimeSpan.FromSeconds(12d);
+        private static readonly TimeSpan defaultUpdateFrequency = TimeSpan.FromSeconds(12d);
 
         private readonly string path = string.Empty;
-        private readonly DispatcherTimer timer;
+
+        private DispatcherTimer? timer = null;
 
         private readonly ObservableCollection<PingBase> _pings = new ObservableCollection<PingBase>();
         public IReadOnlyCollection<PingBase> Pings => _pings;
 
         public MainWindowViewModel(string path)
-            : this(path, defaultTimerFrequency)
-        { }
-
-        public MainWindowViewModel(string path, TimeSpan updateFrequency)
         {
             if (String.IsNullOrWhiteSpace(path))
             {
@@ -30,6 +27,18 @@ namespace Pingy.Gui
             }
             
             this.path = path;
+        }
+
+        private async void Timer_Tick(object? sender, EventArgs e) => await PingAllAsync();
+
+        public void StartTimer() => StartTimer(defaultUpdateFrequency);
+
+        public void StartTimer(TimeSpan updateFrequency)
+        {
+            if (timer != null)
+            {
+                StopTimer();
+            }
 
             timer = new DispatcherTimer(DispatcherPriority.ApplicationIdle)
             {
@@ -40,7 +49,16 @@ namespace Pingy.Gui
             timer.Start();
         }
 
-        private async void Timer_Tick(object? sender, EventArgs e) => await PingAllAsync();
+        public void StopTimer()
+        {
+            if (timer != null)
+            {
+                timer.Stop();
+                timer.Tick -= Timer_Tick;
+
+                timer = null;
+            }
+        }
 
         public async Task LoadAsync()
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
@@ -26,6 +27,8 @@ namespace Pingy.Gui
             await vm.LoadAsync();
 
             await vm.PingAllAsync();
+
+            vm.StartTimer();
         }
 
         private async void Window_KeyUp(object sender, KeyEventArgs e)
@@ -75,6 +78,11 @@ namespace Pingy.Gui
             }
 
             MaxHeight = bottom - leeway;
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            vm.StopTimer();
         }
     }
 }
