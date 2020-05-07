@@ -11,7 +11,7 @@
         <SolidColorBrush x:Key="PingStatusSuccess" Color="LightGreen" />
         <SolidColorBrush x:Key="PingStatusDnsResolutionError" Color="Orange" />
         <SolidColorBrush x:Key="PingStatusIPv6GatewayMissing" Color="LightBlue" />
-        <SolidColorBrush x:Key="PingStatusFailure" Color="Maroon" />
+        <SolidColorBrush x:Key="PingStatusFailure" Color="#FF4040" />
         <SolidColorBrush x:Key="PingStatusCancelled" Color="SandyBrown" />
 
         <converters:PingStatusToColorConverter x:Key="statusColorConverter"
