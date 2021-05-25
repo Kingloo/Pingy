@@ -1,66 +1,66 @@
-﻿<Application x:Class="Pingy.Gui.App"
+<Application x:Class="Pingy.Gui.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:converters="clr-namespace:Pingy.Converters"
              ShutdownMode="OnMainWindowClose"
              DispatcherUnhandledException="Application_DispatcherUnhandledException">
-    
-    <Application.Resources>
-        <SolidColorBrush x:Key="PingStatusNone" Color="White" />
-        <SolidColorBrush x:Key="PingStatusUpdating" Color="Yellow" />
-        <SolidColorBrush x:Key="PingStatusSuccess" Color="LightGreen" />
-        <SolidColorBrush x:Key="PingStatusDnsResolutionError" Color="Orange" />
-        <SolidColorBrush x:Key="PingStatusIPv6GatewayMissing" Color="LightBlue" />
-        <SolidColorBrush x:Key="PingStatusFailure" Color="#FF4040" />
-        <SolidColorBrush x:Key="PingStatusCancelled" Color="SandyBrown" />
 
-        <converters:PingStatusToColorConverter x:Key="statusColorConverter"
-                                               None="{StaticResource PingStatusNone}"
-                                               Updating="{StaticResource PingStatusUpdating}"
-                                               Success="{StaticResource PingStatusSuccess}"
-                                               DnsResolutionError="{StaticResource PingStatusDnsResolutionError}"
-                                               IPv6GatewayMissing="{StaticResource PingStatusIPv6GatewayMissing}"
-                                               Failure="{StaticResource PingStatusFailure}"
-                                               Cancelled="{StaticResource PingStatusCancelled}" />
+	<Application.Resources>
+		<SolidColorBrush x:Key="PingStatusNoneColor" Color="White" />
+		<SolidColorBrush x:Key="PingStatusUpdatingColor" Color="Yellow" />
+		<SolidColorBrush x:Key="PingStatusSuccessColor" Color="LightGreen" />
+		<SolidColorBrush x:Key="PingStatusDnsResolutionErrorColor" Color="Orange" />
+		<SolidColorBrush x:Key="PingStatusIPv6GatewayMissingColor" Color="LightBlue" />
+		<SolidColorBrush x:Key="PingStatusFailureColor" Color="#FF4040" />
+		<SolidColorBrush x:Key="PingStatusCancelledColor" Color="SandyBrown" />
 
-        <Style TargetType="{x:Type FrameworkElement}">
-            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-            <Setter Property="SnapsToDevicePixels" Value="True" />
-            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
-        </Style>
+		<converters:PingStatusToColorConverter x:Key="statusColorConverter"
+                                               None="{StaticResource PingStatusNoneColor}"
+                                               Updating="{StaticResource PingStatusUpdatingColor}"
+                                               Success="{StaticResource PingStatusSuccessColor}"
+                                               DnsResolutionError="{StaticResource PingStatusDnsResolutionErrorColor}"
+                                               IPv6GatewayMissing="{StaticResource PingStatusIPv6GatewayMissingColor}"
+                                               Failure="{StaticResource PingStatusFailureColor}"
+                                               Cancelled="{StaticResource PingStatusCancelledColor}" />
 
-        <Style TargetType="{x:Type ItemsPresenter}" BasedOn="{StaticResource {x:Type FrameworkElement}}" />
+		<Style TargetType="{x:Type FrameworkElement}">
+			<Setter Property="FocusVisualStyle" Value="{x:Null}" />
+			<Setter Property="SnapsToDevicePixels" Value="True" />
+			<Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+		</Style>
 
-        <Style TargetType="{x:Type VirtualizingStackPanel}" BasedOn="{StaticResource {x:Type FrameworkElement}}">
-            <Setter Property="VirtualizingPanel.IsVirtualizing" Value="True" />
-            <Setter Property="VirtualizingPanel.VirtualizationMode" Value="Recycling" />
-            <Setter Property="VirtualizingPanel.CacheLengthUnit" Value="Pixel" />
-            <Setter Property="VirtualizingPanel.CacheLength" Value="200" />
-        </Style>
+		<Style TargetType="{x:Type ItemsPresenter}" BasedOn="{StaticResource {x:Type FrameworkElement}}" />
 
-        <Style TargetType="{x:Type Control}" BasedOn="{StaticResource {x:Type FrameworkElement}}">
-            <Setter Property="FontFamily" Value="Segoe UI" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="HorizontalContentAlignment" Value="Center" />
-        </Style>
+		<Style TargetType="{x:Type VirtualizingStackPanel}" BasedOn="{StaticResource {x:Type FrameworkElement}}">
+			<Setter Property="VirtualizingPanel.IsVirtualizing" Value="True" />
+			<Setter Property="VirtualizingPanel.VirtualizationMode" Value="Recycling" />
+			<Setter Property="VirtualizingPanel.CacheLengthUnit" Value="Pixel" />
+			<Setter Property="VirtualizingPanel.CacheLength" Value="200" />
+		</Style>
 
-        <Style TargetType="{x:Type Label}" BasedOn="{StaticResource {x:Type Control}}">
-            <Setter Property="Padding" Value="15" />
-            <Setter Property="FontSize" Value="22" />
-        </Style>
+		<Style TargetType="{x:Type Control}" BasedOn="{StaticResource {x:Type FrameworkElement}}">
+			<Setter Property="FontFamily" Value="Segoe UI" />
+			<Setter Property="FontWeight" Value="Bold" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+			<Setter Property="HorizontalContentAlignment" Value="Center" />
+			<Setter Property="FontSize" Value="16" />
+		</Style>
 
-        <Style TargetType="{x:Type ItemsControl}" BasedOn="{StaticResource {x:Type Control}}">
-            <Setter Property="VirtualizingPanel.ScrollUnit" Value="Pixel" />
-        </Style>
+		<Style TargetType="{x:Type Label}" BasedOn="{StaticResource {x:Type Control}}">
+			<Setter Property="Padding" Value="10" />
+		</Style>
 
-        <Style TargetType="{x:Type ScrollViewer}" BasedOn="{StaticResource {x:Type Control}}">
-            <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
-        </Style>
+		<Style TargetType="{x:Type ItemsControl}" BasedOn="{StaticResource {x:Type Control}}">
+			<Setter Property="VirtualizingPanel.ScrollUnit" Value="Pixel" />
+		</Style>
 
-        <Style TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource {x:Type Control}}">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderThickness" Value="0" />
-        </Style>
-    </Application.Resources>
+		<Style TargetType="{x:Type ScrollViewer}" BasedOn="{StaticResource {x:Type Control}}">
+			<Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+		</Style>
+
+		<Style TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource {x:Type Control}}">
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="BorderThickness" Value="0" />
+		</Style>
+	</Application.Resources>
 </Application>

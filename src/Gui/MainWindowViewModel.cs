@@ -8,103 +8,119 @@ using Pingy.Model;
 
 namespace Pingy.Gui
 {
-    public class MainWindowViewModel
-    {
-        private static readonly TimeSpan defaultUpdateFrequency = TimeSpan.FromSeconds(12d);
+	public class MainWindowViewModel
+	{
+		private static readonly TimeSpan defaultUpdateFrequency = TimeSpan.FromSeconds(15d);
 
-        private readonly string path = string.Empty;
+		private readonly string addressesFilePath = string.Empty;
 
-        private DispatcherTimer? timer = null;
+		private DispatcherTimer? timer = null;
 
-        private readonly ObservableCollection<PingBase> _pings = new ObservableCollection<PingBase>();
-        public IReadOnlyCollection<PingBase> Pings => _pings;
+		private readonly ObservableCollection<PingBase> _pings = new ObservableCollection<PingBase>();
+		public IReadOnlyCollection<PingBase> Pings => _pings;
 
-        public MainWindowViewModel(string path)
-        {
-            if (String.IsNullOrWhiteSpace(path))
-            {
-                throw new ArgumentNullException(nameof(path));
-            }
-            
-            this.path = path;
-        }
+		public MainWindowViewModel(string path)
+		{
+			if (String.IsNullOrWhiteSpace(path))
+			{
+				throw new ArgumentNullException(nameof(path));
+			}
 
-        private async void Timer_Tick(object? sender, EventArgs e) => await PingAllAsync();
+			addressesFilePath = path;
+		}
 
-        public void StartTimer() => StartTimer(defaultUpdateFrequency);
+		private async void Timer_Tick(object? sender, EventArgs e) => await PingAllAsync();
 
-        public void StartTimer(TimeSpan updateFrequency)
-        {
-            if (timer != null)
-            {
-                StopTimer();
-            }
+		public void StartTimer() => StartTimer(defaultUpdateFrequency);
 
-            timer = new DispatcherTimer(DispatcherPriority.ApplicationIdle)
-            {
-                Interval = updateFrequency
-            };
+		public void StartTimer(TimeSpan updateFrequency)
+		{
+			if (timer != null)
+			{
+				StopTimer();
+			}
 
-            timer.Tick += Timer_Tick;
-            timer.Start();
-        }
+			timer = new DispatcherTimer(DispatcherPriority.ApplicationIdle)
+			{
+				Interval = updateFrequency
+			};
 
-        public void StopTimer()
-        {
-            if (timer != null)
-            {
-                timer.Stop();
-                timer.Tick -= Timer_Tick;
+			timer.Tick += Timer_Tick;
+			timer.Start();
+		}
 
-                timer = null;
-            }
-        }
+		public void StopTimer()
+		{
+			if (timer != null)
+			{
+				timer.Stop();
+				timer.Tick -= Timer_Tick;
 
-        public async Task LoadAsync()
-        {
-            _pings.Clear();
+				timer = null;
+			}
+		}
 
-            string[] lines = await FileSystem.LoadLinesFromFileAsync(path, "#");
+		public async Task LoadAsync()
+		{
+			_pings.Clear();
 
-            foreach (PingBase each in CreatePings(lines))
-            {
-                _pings.Add(each);
-            }
-        }
+			string[] lines = await FileSystem.LoadLinesFromFileAsync(addressesFilePath, "#");
 
-        private static IEnumerable<PingBase> CreatePings(string[] lines)
-        {
-            foreach (string line in lines)
-            {
-                if (PingBase.TryCreate(line, out PingBase? ping))
-                {
-                    #nullable disable
-                    yield return ping;
-                    #nullable enable
-                }
-            }
-        }
+			foreach (PingBase each in CreatePings(lines))
+			{
+				_pings.Add(each);
+			}
+		}
 
-        public Task PingAsync(PingBase ping) => ping.PingAsync();
+		private static IEnumerable<PingBase> CreatePings(string[] lines)
+		{
+			foreach (string line in lines)
+			{
+				if (PingBase.TryCreate(line, out PingBase? ping))
+				{
+					yield return ping;
+				}
+			}
+		}
 
-        public Task PingAllAsync()
-        {
-            List<Task> tasks = new List<Task>();
+		public Task PingAsync(PingBase ping) => ping.PingAsync();
 
-            foreach (PingBase each in Pings)
-            {
-                tasks.Add(PingAsync(each));
-            }
+		public Task PingAsync(PingBase ping, TimeSpan delay) => ping.PingAsync(delay);
 
-            return (tasks.Count > 0) ? Task.WhenAll(tasks) : Task.CompletedTask;
-        }
+		public async Task PingAllAsync()
+		{
+			if (Pings.Count == 0)
+			{
+				return;
+			}
 
-        public void OpenFile()
-        {
-            if (!SystemLaunch.Path(path))
-            {
-                Log.Message($"could not open path: {path}");
-            }
-        }
-    }
+			List<Task> tasks = new List<Task>(Pings.Count);
+
+			foreach (PingBase each in Pings)
+			{
+				TimeSpan delay = TimeSpan.FromMilliseconds(GetDelayMs());
+
+				tasks.Add(each.PingAsync(delay));
+			}
+
+			await Task.WhenAll(tasks);
+		}
+
+		private static int GetDelayMs()
+		{
+			const int maxDelayMs = 30;
+
+			int randomInt = Int32.Parse(Environment.TickCount.ToString()[^2..].ToString());
+
+			return Math.Min(maxDelayMs, randomInt);
+		}
+
+		public void OpenFile()
+		{
+			if (!SystemLaunch.Path(addressesFilePath))
+			{
+				LogStatic.Message($"could not open path: {addressesFilePath}");
+			}
+		}
+	}
 }

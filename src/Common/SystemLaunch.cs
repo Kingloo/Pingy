@@ -1,34 +1,44 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 
 namespace Pingy.Common
 {
-    public static class SystemLaunch
-    {
-        public static bool Path(string path)
-        {
-            return File.Exists(path) ? Launch(path) : false;
-        }
+	public static class SystemLaunch
+	{
+		public static bool Path(string path)
+		{
+			return File.Exists(path) && Launch(path);
+		}
 
-        public static bool Uri(Uri uri)
-        {
-            return uri.IsAbsoluteUri ? Launch(uri.AbsoluteUri) : false;
-        }
+		public static bool Uri(Uri uri)
+		{
+			return uri.IsAbsoluteUri && Launch(uri.AbsoluteUri);
+		}
 
-        private static bool Launch(string launchString)
-        {
-            ProcessStartInfo pInfo = new ProcessStartInfo(launchString)
-            {
-                UseShellExecute = true
-            };
+		public static bool Launch(ProcessStartInfo pInfo)
+		{
+			return LaunchInternal(pInfo);
+		}
 
-            using Process p = new Process
-            {
-                StartInfo = pInfo
-            };
+		public static bool Launch(string launchString)
+		{
+			ProcessStartInfo pInfo = new ProcessStartInfo(launchString)
+			{
+				UseShellExecute = true
+			};
 
-            return p.Start();
-        }
-    }
+			return LaunchInternal(pInfo);
+		}
+
+		private static bool LaunchInternal(ProcessStartInfo pInfo)
+		{
+			using Process p = new Process
+			{
+				StartInfo = pInfo
+			};
+
+			return p.Start();
+		}
+	}
 }

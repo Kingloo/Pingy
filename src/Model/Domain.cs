@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -8,59 +9,59 @@ using Pingy.Model;
 
 namespace Pingy
 {
-    public class Domain : PingBase
-    {
-        private readonly IPHostEntry host;
+	public class Domain : PingBase
+	{
+		private readonly IPHostEntry host;
 
-        public Domain(IPHostEntry ipHostEntry)
-        {
-            host = ipHostEntry;
-            
-            DisplayName = host.HostName;
-        }
+		public Domain(IPHostEntry ipHostEntry)
+		{
+			host = ipHostEntry;
 
-        public override async Task PingAsync(CancellationToken token)
-        {
-            Status = PingStatus.Updating;
+			DisplayName = host.HostName;
+		}
 
-            IPAddress ip = await ResolveHostNameAsync(host.HostName).ConfigureAwait(false);
+		public override async Task PingAsync(TimeSpan delay, CancellationToken token)
+		{
+			Status = PingStatus.Updating;
 
-            if (ip == IPAddress.None)
-            {
-                Status = PingStatus.DnsResolutionError;
-            }
-            else
-            {
-                Address = ip;
+			IPAddress ip = await ResolveHostNameAsync(host.HostName).ConfigureAwait(false);
 
-                await base.PingAsync(token).ConfigureAwait(false);
-            }
-        }
+			if (ip == IPAddress.None)
+			{
+				Status = PingStatus.DnsResolutionError;
+			}
+			else
+			{
+				Address = ip;
 
-        private static async Task<IPAddress> ResolveHostNameAsync(string hostName)
-        {
-            try
-            {
-                IPAddress[] ips = await Dns.GetHostAddressesAsync(hostName).ConfigureAwait(false);
+				await base.PingAsync(delay, token).ConfigureAwait(false);
+			}
+		}
 
-                return ips.FirstOrDefault() ?? IPAddress.None;
-            }
-            catch (SocketException)
-            {
-                return IPAddress.None;
-            }
-        }
+		private static async Task<IPAddress> ResolveHostNameAsync(string hostName)
+		{
+			try
+			{
+				IPAddress[] ips = await Dns.GetHostAddressesAsync(hostName).ConfigureAwait(false);
 
-        protected override void ParsePingReply(PingReply? reply)
-        {
-            if (reply is PingReply)
-            {
-                base.ParsePingReply(reply);
-            }
-            else
-            {
-                Status = PingStatus.DnsResolutionError;
-            }
-        }
-    }
+				return ips.FirstOrDefault() ?? IPAddress.None;
+			}
+			catch (SocketException)
+			{
+				return IPAddress.None;
+			}
+		}
+
+		protected override void ParsePingReply(PingReply? reply)
+		{
+			if (reply is PingReply)
+			{
+				base.ParsePingReply(reply);
+			}
+			else
+			{
+				Status = PingStatus.DnsResolutionError;
+			}
+		}
+	}
 }
