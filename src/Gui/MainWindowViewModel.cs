@@ -17,7 +17,7 @@ namespace Pingy.Gui
 		private DispatcherTimer? timer = null;
 
 		private readonly ObservableCollection<PingBase> _pings = new ObservableCollection<PingBase>();
-		public IReadOnlyCollection<PingBase> Pings => _pings;
+		public IReadOnlyCollection<PingBase> Pings { get => _pings; }
 
 		public MainWindowViewModel(string path)
 		{
@@ -63,7 +63,7 @@ namespace Pingy.Gui
 		public async Task LoadAsync()
 		{
 			_pings.Clear();
-
+			
 			string[] lines = await FileSystem.LoadLinesFromFileAsync(addressesFilePath, "#");
 
 			foreach (PingBase each in CreatePings(lines))

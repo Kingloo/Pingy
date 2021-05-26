@@ -53,17 +53,6 @@
 
 	<ItemsControl ItemsSource="{Binding Pings}"
                   ItemTemplate="{StaticResource PingBaseTemplate}">
-		<ItemsControl.Template>
-			<ControlTemplate>
-				<ScrollViewer CanContentScroll="True">
-					<ScrollViewer.Resources>
-						<sys:Double x:Key="{x:Static SystemParameters.VerticalScrollBarWidthKey}">5</sys:Double>
-					</ScrollViewer.Resources>
-					<ItemsPresenter />
-				</ScrollViewer>
-			</ControlTemplate>
-		</ItemsControl.Template>
-
 		<ItemsControl.ItemsPanel>
 			<ItemsPanelTemplate>
 				<VirtualizingStackPanel Margin="4,0,4,4" />
@@ -71,14 +60,39 @@
 		</ItemsControl.ItemsPanel>
 
 		<ItemsControl.Style>
-			<Style TargetType="{x:Type ItemsControl}" BasedOn="{StaticResource {x:Type ItemsControl}}">
+			<Style TargetType="{x:Type ItemsControl}">
+				<Setter Property="Template">
+					<Setter.Value>
+						<ControlTemplate>
+							<ScrollViewer CanContentScroll="True">
+								<ScrollViewer.Resources>
+									<sys:Double x:Key="{x:Static SystemParameters.VerticalScrollBarWidthKey}">5</sys:Double>
+								</ScrollViewer.Resources>
+								<ItemsPresenter />
+							</ScrollViewer>
+						</ControlTemplate>
+					</Setter.Value>
+				</Setter>
 				<Style.Triggers>
 					<Trigger Property="HasItems" Value="False">
 						<Setter Property="Template">
 							<Setter.Value>
 								<ControlTemplate>
-									<Label Height="200" Width="300"
-										   Content="Press F11 to open Pingy.txt and add some addresses." />
+									<RichTextBox FontSize="20"
+												 BorderThickness="0"
+												 Padding="10"
+												 MaxWidth="400"
+												 MinHeight="500"
+												 Background="Transparent"
+												 Foreground="Yellow">
+										<FlowDocument>
+											<Paragraph>Press F11 to open Pingy.txt and add some addresses.</Paragraph>
+											<Paragraph>e.g.</Paragraph>
+											<Paragraph>1.1.1.1</Paragraph>
+											<Paragraph>or</Paragraph>
+											<Paragraph>yahoo.com</Paragraph>
+										</FlowDocument>
+									</RichTextBox>
 								</ControlTemplate>
 							</Setter.Value>
 						</Setter>
