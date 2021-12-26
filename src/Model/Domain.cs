@@ -54,7 +54,7 @@ namespace Pingy
 
 		protected override void ParsePingReply(PingReply? reply)
 		{
-			if (reply is PingReply)
+			if (reply is not null)
 			{
 				base.ParsePingReply(reply);
 			}

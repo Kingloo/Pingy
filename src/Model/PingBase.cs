@@ -122,7 +122,7 @@ namespace Pingy.Model
 
 			ParsePingReply(reply);
 
-			RoundtripTime = (reply is PingReply) ? reply.RoundtripTime : -1;
+			RoundtripTime = (reply is not null) ? reply.RoundtripTime : -1;
 		}
 
 		protected static async Task<PingReply?> PingIPAddressAsync(IPAddress ip)
@@ -143,7 +143,7 @@ namespace Pingy.Model
 
 		protected virtual void ParsePingReply(PingReply? reply)
 		{
-			if (reply is PingReply)
+			if (reply is not null)
 			{
 				Status = (reply.Status == IPStatus.Success)
 					? PingStatus.Success
