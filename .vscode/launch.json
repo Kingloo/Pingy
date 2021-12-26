@@ -5,11 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": ".NET Core Launch (console)",
+            "name": "Pingy (WPF)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/bin/Debug/netcoreapp3.0/Pingy.dll",
+            "program": "${workspaceFolder}/src/bin/Debug/net6.0-windows/Pingy.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
             "console": "internalConsole",
