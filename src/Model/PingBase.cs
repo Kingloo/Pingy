@@ -69,7 +69,7 @@ namespace Pingy.Model
 
 		public static bool TryCreate(string line, [NotNullWhen(true)] out PingBase? pingBase)
 		{
-			if (IPAddress.TryParse(line, out IPAddress address))
+			if (IPAddress.TryParse(line, out IPAddress? address))
 			{
 				pingBase = new IP(address);
 			}

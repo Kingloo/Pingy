@@ -63,8 +63,8 @@ namespace Pingy.Gui
 		public async Task LoadAsync()
 		{
 			_pings.Clear();
-			
-			string[] lines = await FileSystem.LoadLinesFromFileAsync(addressesFilePath, "#");
+
+			string[] lines = await FileSystem.LoadLinesFromFileAsync(addressesFilePath, '#');
 
 			foreach (PingBase each in CreatePings(lines))
 			{
