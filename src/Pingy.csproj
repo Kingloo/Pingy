@@ -14,7 +14,7 @@
     <EnableDefaultApplicationDefinition>false</EnableDefaultApplicationDefinition>
     <StartupObject>Pingy.Program</StartupObject>
     <ApplicationIcon>Assets\Pingy.ico</ApplicationIcon>
-    <Copyright>© Kingloo 2021</Copyright>
+    <Copyright>© Kingloo 2024</Copyright>
     <RepositoryUrl>https://github.com/kingloo/Pingy</RepositoryUrl>
   </PropertyGroup>
 
