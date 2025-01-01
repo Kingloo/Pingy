@@ -1,6 +1,5 @@
 using System;
 using System.ComponentModel;
-using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -24,9 +23,9 @@ namespace Pingy.Gui
 
 		private async void Window_Loaded(object sender, RoutedEventArgs e)
 		{
-			await vm.LoadAsync();
+			await vm.LoadAsync().ConfigureAwait(true);
 
-			await vm.PingAllAsync();
+			await vm.PingAllAsync().ConfigureAwait(true);
 
 			vm.StartTimer();
 		}
@@ -36,14 +35,14 @@ namespace Pingy.Gui
 			switch (e.Key)
 			{
 				case Key.F5:
-					await vm.PingAllAsync();
+					await vm.PingAllAsync().ConfigureAwait(true);
 					break;
 				case Key.F11:
 					vm.OpenFile();
 					break;
 				case Key.F12:
-					await vm.LoadAsync();
-					await vm.PingAllAsync();
+					await vm.LoadAsync().ConfigureAwait(true);
+					await vm.PingAllAsync().ConfigureAwait(true);
 					break;
 				case Key.Escape:
 					Close();
@@ -58,7 +57,7 @@ namespace Pingy.Gui
 			Grid grid = (Grid)sender;
 			PingBase ping = (PingBase)grid.DataContext;
 
-			await vm.PingAsync(ping);
+			await vm.PingAsync(ping).ConfigureAwait(true);
 		}
 
 		private void Window_LocationChanged(object sender, EventArgs e)
@@ -70,12 +69,7 @@ namespace Pingy.Gui
 			double bottom = currentMonitor?.WorkingArea.Bottom ?? SystemParameters.WorkArea.Bottom;
 			double leeway = 150d;
 
-			if (bottom - leeway < 0)
-			{
-				string message = String.Format(CultureInfo.CurrentCulture, "bottom was less than leeway ({0}, {1})", bottom, leeway);
-
-				throw new ArgumentOutOfRangeException(nameof(MaxHeight), message);
-			}
+			ArgumentOutOfRangeException.ThrowIfNegative(bottom - leeway, "new max height");
 
 			MaxHeight = bottom - leeway;
 		}

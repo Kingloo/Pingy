@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -46,11 +46,11 @@ namespace Pingy.Common
 			Severity = severity;
 		}
 
-		public void Message(string msg, Severity severity)
+		public void Message(string message, Severity severity)
 		{
 			if (severity >= Severity)
 			{
-				string text = FormatMessage(msg);
+				string text = FormatMessage(message);
 
 				WriteToFile(text, Path);
 			}
@@ -82,7 +82,7 @@ namespace Pingy.Common
 
 		public void Exception(Exception ex, string message, bool includeStackTrace)
 		{
-			if (ex is null) { throw new ArgumentNullException(nameof(ex)); }
+			ArgumentNullException.ThrowIfNull(ex);
 
 			string text = FormatException(ex, message, includeStackTrace);
 
@@ -100,7 +100,7 @@ namespace Pingy.Common
 
 		public Task ExceptionAsync(Exception ex, string message, bool includeStackTrace)
 		{
-			if (ex is null) { throw new ArgumentNullException(nameof(ex)); }
+			ArgumentNullException.ThrowIfNull(ex);
 
 			string text = FormatException(ex, message, includeStackTrace);
 
@@ -167,7 +167,9 @@ namespace Pingy.Common
 			catch (IOException) { }
 			finally
 			{
+#pragma warning disable CA1508
 				fs?.Close();
+#pragma warning restore CA1508
 			}
 		}
 
@@ -197,7 +199,12 @@ namespace Pingy.Common
 			catch (IOException) { }
 			finally
 			{
-				fsAsync?.Close();
+#pragma warning disable CA1508
+				if (fsAsync is not null)
+				{
+					await fsAsync.DisposeAsync().ConfigureAwait(false);
+				}
+#pragma warning restore CA1508
 			}
 		}
 	}

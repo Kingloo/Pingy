@@ -7,7 +7,7 @@ using Pingy.Model;
 namespace Pingy.Converters
 {
 	[ValueConversion(typeof(PingStatus), typeof(Brush))]
-	public class PingStatusToColorConverter : IValueConverter
+	public sealed class PingStatusToColorConverter : IValueConverter
 	{
 		public Brush None { get; set; } = Brushes.White;
 		public Brush Updating { get; set; } = Brushes.White;

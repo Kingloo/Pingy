@@ -29,7 +29,10 @@ namespace Pingy.Gui
 			addressesFilePath = path;
 		}
 
-		private async void Timer_Tick(object? sender, EventArgs e) => await PingAllAsync();
+		private async void Timer_Tick(object? sender, EventArgs e)
+		{
+			await PingAllAsync().ConfigureAwait(true);
+		}
 
 		public void StartTimer() => StartTimer(defaultUpdateFrequency);
 
@@ -64,7 +67,7 @@ namespace Pingy.Gui
 		{
 			_pings.Clear();
 
-			string[] lines = await FileSystem.LoadLinesFromFileAsync(addressesFilePath, '#');
+			string[] lines = await FileSystem.LoadLinesFromFileAsync(addressesFilePath).ConfigureAwait(true);
 
 			foreach (PingBase each in CreatePings(lines))
 			{
@@ -83,36 +86,50 @@ namespace Pingy.Gui
 			}
 		}
 
-		public Task PingAsync(PingBase ping) => ping.PingAsync();
+#pragma warning disable CA1822 // no instance data therefore can be made static
+		public Task PingAsync(PingBase ping)
+		{
+			ArgumentNullException.ThrowIfNull(ping);
 
-		public Task PingAsync(PingBase ping, TimeSpan delay) => ping.PingAsync(delay);
+			return ping.PingAsync();
+		}
+#pragma warning restore CA1822
 
-		public async Task PingAllAsync()
+#pragma warning disable CA1822 // no instance data therefore can be made static
+		public Task PingAsync(PingBase ping, TimeSpan delay)
+		{
+			ArgumentNullException.ThrowIfNull(ping);
+
+			return ping.PingAsync(delay);
+		}
+#pragma warning restore CA1822
+
+		public Task PingAllAsync()
 		{
 			if (Pings.Count == 0)
 			{
-				return;
+				return Task.CompletedTask;
 			}
 
-			List<Task> tasks = new List<Task>(Pings.Count);
+			List<Task> tasks = new List<Task>(capacity: Pings.Count);
 
 			foreach (PingBase each in Pings)
 			{
-				TimeSpan delay = TimeSpan.FromMilliseconds(GetDelayMs());
+				TimeSpan randomDelay = GetRandomDelay();
 
-				tasks.Add(each.PingAsync(delay));
+				tasks.Add(each.PingAsync(randomDelay));
 			}
 
-			await Task.WhenAll(tasks);
+			return Task.WhenAll(tasks);
 		}
 
-		private static int GetDelayMs()
+		private static TimeSpan GetRandomDelay()
 		{
 			const int maxDelayMs = 30;
 
-			int randomInt = Int32.Parse(Environment.TickCount.ToString()[^2..].ToString());
+			int rand = System.Security.Cryptography.RandomNumberGenerator.GetInt32(fromInclusive: 10, toExclusive: maxDelayMs);
 
-			return Math.Min(maxDelayMs, randomInt);
+			return TimeSpan.FromMilliseconds(Math.Min(maxDelayMs, rand));
 		}
 
 		public void OpenFile()

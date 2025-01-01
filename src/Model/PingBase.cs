@@ -24,12 +24,12 @@ namespace Pingy.Model
 
 			storage = value;
 
-			RaisePropertyChanged(propertyName);
+			OnPropertyChanged(propertyName);
 
 			return true;
 		}
 
-		protected void RaisePropertyChanged(string propertyName)
+		protected void OnPropertyChanged(string propertyName)
 			=> PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
 		private string _displayName = string.Empty;
@@ -49,7 +49,7 @@ namespace Pingy.Model
 			{
 				SetProperty(ref _status, value, nameof(Status));
 
-				RaisePropertyChanged(nameof(DisplayText));
+				OnPropertyChanged(nameof(DisplayText));
 			}
 		}
 
@@ -143,16 +143,15 @@ namespace Pingy.Model
 
 		protected virtual void ParsePingReply(PingReply? reply)
 		{
-			if (reply is not null)
+			Status = reply switch
 			{
-				Status = (reply.Status == IPStatus.Success)
-					? PingStatus.Success
-					: PingStatus.Failure;
-			}
-			else
-			{
-				Status = PingStatus.Failure;
-			}
+				PingReply pingReply => pingReply.Status switch
+				{
+					IPStatus.Success => PingStatus.Success,
+					_ => PingStatus.Failure
+				},
+				null => PingStatus.Failure
+			};
 		}
 	}
 }

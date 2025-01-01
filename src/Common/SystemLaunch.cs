@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 
@@ -8,25 +8,39 @@ namespace Pingy.Common
 	{
 		public static bool Path(string path)
 		{
+			if (String.IsNullOrWhiteSpace(path))
+			{
+				throw new ArgumentNullException(nameof(path));
+			}
+
 			return File.Exists(path) && Launch(path);
 		}
 
 		public static bool Uri(Uri uri)
 		{
-			return uri.IsAbsoluteUri && Launch(uri.AbsoluteUri);
-		}
+			ArgumentNullException.ThrowIfNull(uri);
 
-		public static bool Launch(ProcessStartInfo pInfo)
-		{
-			return LaunchInternal(pInfo);
+			return uri.IsAbsoluteUri && Launch(uri.AbsoluteUri);
 		}
 
 		public static bool Launch(string launchString)
 		{
+			if (String.IsNullOrWhiteSpace(launchString))
+			{
+				throw new ArgumentNullException(nameof(launchString));
+			}
+
 			ProcessStartInfo pInfo = new ProcessStartInfo(launchString)
 			{
 				UseShellExecute = true
 			};
+
+			return LaunchInternal(pInfo);
+		}
+
+		public static bool Launch(ProcessStartInfo pInfo)
+		{
+			ArgumentNullException.ThrowIfNull(pInfo);
 
 			return LaunchInternal(pInfo);
 		}
